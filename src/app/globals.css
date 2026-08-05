@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+/*
+ * Tap Five design tokens.
+ * Change colours, radius and spacing here to re-theme the whole site.
+ */
+:root {
+  --tf-black: #050608;
+  --tf-near-black: #0a0b0d;
+  --tf-ink: #101114;
+  --tf-white: #ffffff;
+  --tf-paper: #fafafa;
+
+  --tf-neutral-100: #f4f4f5;
+  --tf-neutral-200: #e4e4e7;
+  --tf-neutral-300: #d4d4d8;
+  --tf-neutral-400: #a1a1aa;
+  --tf-neutral-500: #71717a;
+  --tf-neutral-600: #52525b;
+  --tf-neutral-700: #3f3f46;
+  --tf-neutral-800: #27272a;
+  --tf-neutral-900: #18181b;
+
+  --tf-accent: #2f6dff;
+  --tf-accent-bright: #4d8bff;
+  --tf-accent-dim: #1c47ac;
+  --tf-accent-soft: rgba(47, 109, 255, 0.12);
+
+  --tf-border-dark: rgba(255, 255, 255, 0.1);
+  --tf-border-light: rgba(10, 10, 10, 0.1);
+
+  --tf-radius-sm: 6px;
+  --tf-radius-md: 10px;
+  --tf-radius-lg: 16px;
+
+  --tf-container: 1280px;
+  --tf-header-height: 84px;
+
+  --background: var(--tf-white);
+  --foreground: var(--tf-black);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-tf-black: var(--tf-black);
+  --color-tf-near-black: var(--tf-near-black);
+  --color-tf-ink: var(--tf-ink);
+  --color-tf-white: var(--tf-white);
+  --color-tf-paper: var(--tf-paper);
+
+  --color-tf-neutral-100: var(--tf-neutral-100);
+  --color-tf-neutral-200: var(--tf-neutral-200);
+  --color-tf-neutral-300: var(--tf-neutral-300);
+  --color-tf-neutral-400: var(--tf-neutral-400);
+  --color-tf-neutral-500: var(--tf-neutral-500);
+  --color-tf-neutral-600: var(--tf-neutral-600);
+  --color-tf-neutral-700: var(--tf-neutral-700);
+  --color-tf-neutral-800: var(--tf-neutral-800);
+  --color-tf-neutral-900: var(--tf-neutral-900);
+
+  --color-tf-accent: var(--tf-accent);
+  --color-tf-accent-bright: var(--tf-accent-bright);
+  --color-tf-accent-dim: var(--tf-accent-dim);
+  --color-tf-accent-soft: var(--tf-accent-soft);
+
+  --color-tf-border-dark: var(--tf-border-dark);
+  --color-tf-border-light: var(--tf-border-light);
+
+  --radius-tf-sm: var(--tf-radius-sm);
+  --radius-tf-md: var(--tf-radius-md);
+  --radius-tf-lg: var(--tf-radius-lg);
+
+  --container-tf: var(--tf-container);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-manrope);
+
+  --animate-marquee: marquee var(--marquee-duration, 30s) linear infinite;
+  --animate-marquee-reverse: marquee-reverse var(--marquee-duration, 30s) linear infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+}
+
+* {
+  scrollbar-color: var(--tf-neutral-600) transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--tf-accent);
+  color: var(--tf-white);
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Utility for consistent section vertical rhythm across the site. */
+.tf-section {
+  padding-top: clamp(3.5rem, 6vw, 6.5rem);
+  padding-bottom: clamp(3.5rem, 6vw, 6.5rem);
+}
+
+.tf-focus-ring:focus-visible {
+  outline: 2px solid var(--tf-accent);
+  outline-offset: 3px;
+  border-radius: var(--tf-radius-sm);
+}
+
+/* Simple prose-style rules for legal/placeholder pages (avoids a typography plugin). */
+.legal-content h2 {
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--tf-black);
+}
+
+.legal-content h2:first-child {
+  margin-top: 0;
+}
+
+.legal-content p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+  color: var(--tf-neutral-600);
+}
+
+.legal-content ul {
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+  color: var(--tf-neutral-600);
+}
+
+.legal-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+.legal-content a {
+  color: var(--tf-accent);
+  text-underline-offset: 3px;
+}
+
+.legal-content a:hover {
+  text-decoration: underline;
+}

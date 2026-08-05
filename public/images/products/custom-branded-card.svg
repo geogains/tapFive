@@ -1,0 +1,21 @@
+<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Custom-Branded Card placeholder illustration">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0b0d"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <linearGradient id="card3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c1d21"/>
+      <stop offset="100%" stop-color="#0f1012"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg3)"/>
+  <g transform="translate(400 400)">
+    <rect x="-220" y="-140" width="440" height="280" rx="20" fill="url(#card3)" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
+    <rect x="-190" y="-108" width="90" height="34" rx="8" fill="none" stroke="#4d8bff" stroke-width="4" opacity="0.85"/>
+    <text x="-145" y="-84" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#4d8bff" opacity="0.85">LOGO</text>
+    <circle cx="0" cy="10" r="52" fill="none" stroke="#2f6dff" stroke-width="6" opacity="0.9"/>
+    <circle cx="0" cy="10" r="30" fill="none" stroke="#4d8bff" stroke-width="6" opacity="0.7"/>
+    <circle cx="0" cy="10" r="9" fill="#4d8bff"/>
+  </g>
+</svg>
