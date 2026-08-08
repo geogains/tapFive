@@ -11,6 +11,13 @@ type LogoProps = {
   size?: string;
 };
 
+/**
+ * Shared logo size for the site header, used by both the closed desktop/mobile
+ * header (`Header`) and the open mobile-nav header (`MobileNav`) so the logo
+ * never visibly resizes when the hamburger menu opens or closes.
+ */
+export const HEADER_LOGO_SIZE = "h-[3.1rem]";
+
 export function Logo({ variant = "white", className, href = "/", size = "h-11" }: LogoProps) {
   const src = variant === "white" ? "/images/logo-white.png" : "/images/logo-black.png";
 

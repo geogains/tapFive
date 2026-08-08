@@ -3,6 +3,8 @@ import { Inter, Manrope } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MotionProvider } from "@/components/providers/MotionProvider";
+import { CartProvider } from "@/components/providers/CartProvider";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { company } from "@/data/site-content";
 import "./globals.css";
 
@@ -73,15 +75,18 @@ export default function RootLayout({
     <html lang="en-GB" className={`${inter.variable} ${manrope.variable}`}>
       <body className="bg-tf-white text-tf-black antialiased">
         <MotionProvider>
-          <a
-            href="#main-content"
-            className="tf-focus-ring sr-only z-[100] bg-tf-white px-4 py-2 text-sm font-medium text-tf-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
-          >
-            Skip to content
-          </a>
-          <Header />
-          <main id="main-content">{children}</main>
-          <Footer />
+          <CartProvider>
+            <a
+              href="#main-content"
+              className="tf-focus-ring sr-only z-[100] bg-tf-white px-4 py-2 text-sm font-medium text-tf-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+            >
+              Skip to content
+            </a>
+            <Header />
+            <main id="main-content">{children}</main>
+            <Footer />
+            <CartDrawer />
+          </CartProvider>
         </MotionProvider>
       </body>
     </html>

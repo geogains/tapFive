@@ -32,7 +32,7 @@ export const faqs: Faq[] = [
   {
     question: "Can the card use my branding?",
     answer:
-      "Yes. Our Custom-Branded Card option can be produced using your logo and brand colours alongside your Google review link.",
+      "Yes. Our Custom Branded Card option can be produced using your logo and brand colours alongside your Google review link.",
   },
   {
     question: "How do I find my Google review link?",

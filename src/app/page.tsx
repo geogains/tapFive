@@ -20,8 +20,8 @@ export default function Home() {
     <div id="home">
       <StaticHero />
       <TrustedBy />
-      <HowItWorks />
       <ProductsSection />
+      <HowItWorks />
       <WhyTapFive />
       <BusinessTypes />
       <Testimonials />

@@ -17,7 +17,13 @@ export function HowItWorks() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-8">
           {howItWorks.steps.map((step, index) => (
             <Reveal key={step.number} delay={index * 0.1}>
-              <HowItWorksStep number={step.number} title={step.title} description={step.description} />
+              <HowItWorksStep
+                number={step.number}
+                title={step.title}
+                description={step.description}
+                image={step.image}
+                imageAlt={step.imageAlt}
+              />
             </Reveal>
           ))}
         </div>

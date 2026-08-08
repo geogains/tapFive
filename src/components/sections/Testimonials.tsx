@@ -1,7 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { TestimonialCard } from "@/components/ui/TestimonialCard";
-import { Reveal } from "@/components/ui/Reveal";
+import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { testimonials, testimonialsSection } from "@/data/site-content";
 
 /**
@@ -10,9 +9,20 @@ import { testimonials, testimonialsSection } from "@/data/site-content";
  * customer testimonials before launch — do not invent names,
  * businesses, star ratings or statistics.
  */
+const columnTestimonials = testimonials.map(({ quote, name, role, image }) => ({
+  text: quote,
+  name,
+  role,
+  image,
+}));
+
+const firstColumn = columnTestimonials.slice(0, 3);
+const secondColumn = columnTestimonials.slice(3, 6);
+const thirdColumn = columnTestimonials.slice(6, 9);
+
 export function Testimonials() {
   return (
-    <section className="bg-tf-neutral-100 tf-section">
+    <section className="bg-tf-neutral-100 tf-section overflow-hidden">
       <Container className="flex flex-col gap-14">
         <SectionHeading
           eyebrow={testimonialsSection.eyebrow}
@@ -21,16 +31,10 @@ export function Testimonials() {
           align="center"
         />
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <Reveal key={`${testimonial.name}-${index}`} delay={index * 0.08}>
-              <TestimonialCard
-                quote={testimonial.quote}
-                name={testimonial.name}
-                role={testimonial.role}
-              />
-            </Reveal>
-          ))}
+        <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[738px] overflow-hidden">
+          <TestimonialsColumn testimonials={firstColumn} duration={15} />
+          <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={19} />
+          <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={17} />
         </div>
       </Container>
     </section>

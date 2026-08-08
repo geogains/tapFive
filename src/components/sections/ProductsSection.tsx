@@ -16,7 +16,7 @@ export function ProductsSection() {
             heading={productsSection.heading}
             supporting={productsSection.supporting}
           />
-          <Button href={productsSection.viewAllCta.href} variant="secondary" className="border-tf-neutral-300 text-tf-black hover:border-tf-black shrink-0">
+          <Button href={productsSection.viewAllCta.href} className="shrink-0 bg-tf-black text-tf-white hover:bg-tf-neutral-800">
             {productsSection.viewAllCta.label}
           </Button>
         </div>

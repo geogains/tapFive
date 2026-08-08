@@ -20,8 +20,8 @@ export const company = {
 
 export const nav = [
   { label: "Home", href: "/#home" },
-  { label: "How It Works", href: "/#how-it-works" },
   { label: "Products", href: "/#products" },
+  { label: "How It Works", href: "/#how-it-works" },
   { label: "Why Tap Five", href: "/#why-tap-five" },
   { label: "FAQ", href: "/#faq" },
   { label: "Contact", href: "/contact" },
@@ -36,9 +36,9 @@ export const footerNav = {
   ],
   products: [
     { label: "All Products", href: "/products" },
-    { label: "Counter Review Card", href: "/products#counter-review-card" },
-    { label: "Review Stand", href: "/products#review-stand" },
-    { label: "Custom-Branded Card", href: "/products#custom-branded-card" },
+    { label: "Google Review Card", href: "/products#counter-review-card" },
+    { label: "Instagram Follow Card", href: "/products#review-stand" },
+    { label: "Custom Branded Card", href: "/products#custom-branded-card" },
   ],
   legal: [
     { label: "Privacy Policy", href: "/privacy" },
@@ -71,18 +71,24 @@ export const howItWorks = {
       title: "Place the card",
       description:
         "Position your Tap Five card at your counter, table or reception area, wherever customers naturally pause.",
+      image: "/images/how1.png",
+      imageAlt: "A Tap Five NFC card placed on a counter, ready for customers to tap.",
     },
     {
       number: "02",
       title: "The customer taps",
       description:
         "Using any NFC-enabled smartphone, the customer holds their phone near the card for a moment.",
+      image: "/images/how2.png",
+      imageAlt: "A customer holding their smartphone near the Tap Five card to tap it.",
     },
     {
       number: "03",
       title: "They land on your review page",
       description:
         "The tap opens their browser directly on your Google review page, ready for them to share their feedback.",
+      image: "/images/how3.png",
+      imageAlt: "A smartphone screen showing the Google review page opened after tapping the card.",
     },
   ],
 };
@@ -165,21 +171,62 @@ export const testimonialsSection = {
     "This section is reserved for real customer testimonials — replace the placeholders below once feedback is collected.",
 };
 
+const placeholderAvatar = "/images/avatar-placeholder.svg";
+
 export const testimonials = [
   {
     quote: "Customer testimonial placeholder — replace with a real quote once available.",
     name: "Business name placeholder",
     role: "Business owner",
+    image: placeholderAvatar,
   },
   {
     quote: "Customer testimonial placeholder — replace with a real quote once available.",
     name: "Business name placeholder",
     role: "Manager",
+    image: placeholderAvatar,
   },
   {
     quote: "Customer testimonial placeholder — replace with a real quote once available.",
     name: "Business name placeholder",
     role: "Business owner",
+    image: placeholderAvatar,
+  },
+  {
+    quote: "Customer testimonial placeholder — replace with a real quote once available.",
+    name: "Business name placeholder",
+    role: "Team lead",
+    image: placeholderAvatar,
+  },
+  {
+    quote: "Customer testimonial placeholder — replace with a real quote once available.",
+    name: "Business name placeholder",
+    role: "Business owner",
+    image: placeholderAvatar,
+  },
+  {
+    quote: "Customer testimonial placeholder — replace with a real quote once available.",
+    name: "Business name placeholder",
+    role: "Manager",
+    image: placeholderAvatar,
+  },
+  {
+    quote: "Customer testimonial placeholder — replace with a real quote once available.",
+    name: "Business name placeholder",
+    role: "Business owner",
+    image: placeholderAvatar,
+  },
+  {
+    quote: "Customer testimonial placeholder — replace with a real quote once available.",
+    name: "Business name placeholder",
+    role: "Team lead",
+    image: placeholderAvatar,
+  },
+  {
+    quote: "Customer testimonial placeholder — replace with a real quote once available.",
+    name: "Business name placeholder",
+    role: "Manager",
+    image: placeholderAvatar,
   },
 ];
 

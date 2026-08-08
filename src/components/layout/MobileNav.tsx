@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { Logo } from "@/components/ui/Logo";
+import { Logo, HEADER_LOGO_SIZE } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { nav } from "@/data/site-content";
 
@@ -47,7 +47,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           className="fixed inset-0 z-[60] bg-tf-black lg:hidden"
         >
           <div className="flex h-[var(--tf-header-height)] items-center justify-between px-6 sm:px-8">
-            <Logo variant="white" />
+            <Logo variant="white" size={HEADER_LOGO_SIZE} />
             <button
               ref={closeButtonRef}
               type="button"

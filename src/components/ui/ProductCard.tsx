@@ -1,11 +1,36 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, ArrowUpRight } from "lucide-react";
 import type { Product } from "@/data/products";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { useCart } from "@/components/providers/CartProvider";
 import { cn } from "@/lib/utils";
 
 export function ProductCard({ product, className }: { product: Product; className?: string }) {
+  const { addItem, openCart } = useCart();
+  const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    if (!added) return;
+    const timeout = setTimeout(() => setAdded(false), 1500);
+    return () => clearTimeout(timeout);
+  }, [added]);
+
+  const handleAddToCart = () => {
+    addItem({
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+    setAdded(true);
+    openCart();
+  };
+
   return (
     <article
       id={product.slug}
@@ -21,13 +46,21 @@ export function ProductCard({ product, className }: { product: Product; classNam
       ) : null}
 
       <div className="relative aspect-square w-full overflow-hidden bg-tf-neutral-900">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <div
+          className="relative h-full w-full"
+          style={product.imageScale ? { transform: `scale(${product.imageScale})` } : undefined}
+        >
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className={cn(
+              "transition-transform duration-500 group-hover:scale-105",
+              product.imageFit === "contain" ? "object-contain" : "object-cover",
+            )}
+          />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-6">
@@ -51,13 +84,41 @@ export function ProductCard({ product, className }: { product: Product; classNam
           ))}
         </ul>
 
-        <Link
-          href={product.href}
-          className="tf-focus-ring mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-semibold text-tf-black transition-colors hover:text-tf-accent"
-        >
-          View product
-          <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
+        <div className="mt-auto flex flex-col items-start gap-3 pt-2">
+          <Button
+            type="button"
+            onClick={handleAddToCart}
+            className="relative z-10 w-full bg-tf-black text-tf-white hover:bg-tf-neutral-800"
+          >
+            {added ? (
+              <>
+                <Check className="h-4 w-4" aria-hidden="true" />
+                Added
+              </>
+            ) : (
+              "Add to Cart"
+            )}
+          </Button>
+
+          {/*
+            Stretched-link pattern: this stays the one real, keyboard-focusable
+            anchor for the card (no wrapping <a> around the whole card, no
+            nested-interactive-element issues). Its `after:` pseudo-element is
+            absolutely positioned against the nearest positioned ancestor
+            (the <article>), so it visually covers the entire card and makes
+            it clickable/tappable everywhere — except where the Add to Cart
+            button above sits at a higher z-index, so it keeps intercepting
+            its own clicks without needing any stopPropagation logic.
+          */}
+          <Link
+            href={product.href}
+            aria-label={`View product: ${product.name}`}
+            className="tf-focus-ring inline-flex items-center gap-1.5 text-sm font-semibold text-tf-black transition-colors after:absolute after:inset-0 after:z-0 after:content-[''] hover:text-tf-accent"
+          >
+            View product
+            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </article>
   );
