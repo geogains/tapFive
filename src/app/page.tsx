@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { StaticHero } from "@/components/hero/StaticHero";
 import { TrustedBy } from "@/components/sections/TrustedBy";
-import { HowItWorks } from "@/components/sections/HowItWorks";
+import { TapReviewGrow } from "@/components/sections/TapReviewGrow";
 import { ProductsSection } from "@/components/sections/ProductsSection";
 import { WhyTapFive } from "@/components/sections/WhyTapFive";
-import { BusinessTypes } from "@/components/sections/BusinessTypes";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
@@ -21,9 +20,8 @@ export default function Home() {
       <StaticHero />
       <TrustedBy />
       <ProductsSection />
-      <HowItWorks />
+      <TapReviewGrow />
       <WhyTapFive />
-      <BusinessTypes />
       <Testimonials />
       <FAQSection />
       <CTASection />

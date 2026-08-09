@@ -60,39 +60,6 @@ export const hero = {
   imageMobile: "/images/hero-image-mobile0.png",
 };
 
-export const howItWorks = {
-  eyebrow: "How it works",
-  heading: "Three steps to more reviews",
-  supporting:
-    "Tap Five is designed to fit naturally into a customer's visit, with no extra steps for your team.",
-  steps: [
-    {
-      number: "01",
-      title: "Place the card",
-      description:
-        "Position your Tap Five card at your counter, table or reception area, wherever customers naturally pause.",
-      image: "/images/how1.png",
-      imageAlt: "A Tap Five NFC card placed on a counter, ready for customers to tap.",
-    },
-    {
-      number: "02",
-      title: "The customer taps",
-      description:
-        "Using any NFC-enabled smartphone, the customer holds their phone near the card for a moment.",
-      image: "/images/how2.png",
-      imageAlt: "A customer holding their smartphone near the Tap Five card to tap it.",
-    },
-    {
-      number: "03",
-      title: "They land on your review page",
-      description:
-        "The tap opens their browser directly on your Google review page, ready for them to share their feedback.",
-      image: "/images/how3.png",
-      imageAlt: "A smartphone screen showing the Google review page opened after tapping the card.",
-    },
-  ],
-};
-
 export const productsSection = {
   eyebrow: "Products",
   heading: "Designed to sit beautifully in your space",
@@ -140,92 +107,76 @@ export const whyTapFive = {
   ],
 };
 
-export const businessTypesSection = {
-  eyebrow: "Who it's for",
-  heading: "Built for businesses that meet customers face to face",
-  supporting:
-    "Tap Five works anywhere a happy customer pauses for a moment, edit this list to match the industries you serve.",
-};
-
-export const businessTypes = [
-  { name: "Barbers", icon: "Scissors" },
-  { name: "Salons", icon: "Sparkles" },
-  { name: "Restaurants", icon: "UtensilsCrossed" },
-  { name: "Cafés", icon: "Coffee" },
-  { name: "Tradespeople", icon: "Hammer" },
-  { name: "Dentists", icon: "Stethoscope" },
-  { name: "Gyms", icon: "Dumbbell" },
-  { name: "Hotels", icon: "BedDouble" },
-];
-
-/**
- * Testimonials are placeholder content only.
- * Replace `quote`, `name` and `role` with real, verified customer
- * testimonials before launch. Do not invent names, businesses,
- * star ratings or statistics.
- */
 export const testimonialsSection = {
   eyebrow: "Social proof",
-  heading: "What businesses could say about Tap Five",
-  supporting:
-    "This section is reserved for real customer testimonials — replace the placeholders below once feedback is collected.",
+  heading: "What businesses say about Tap Five",
+  supporting: "Real feedback from local businesses using Tap Five to collect more Google reviews.",
 };
 
 const placeholderAvatar = "/images/avatar-placeholder.svg";
 
 export const testimonials = [
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Business owner",
+    quote:
+      "We started seeing more Google reviews almost immediately. Customers understand exactly what to do, and it takes them seconds.",
+    name: "Harvey",
+    role: "Manager, Oakline Motors",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Manager",
+    quote:
+      "Such a simple idea, but it works. We leave the card by the till and customers tap it while they're paying. Our review numbers have definitely picked up.",
+    name: "Amir",
+    role: "Owner, North & Bean Café",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Business owner",
+    quote:
+      "The setup was completely handled for us. The card arrived ready to use and we've already had customers leaving reviews through it.",
+    name: "Sanjay",
+    role: "Owner, The Sweet Pantry",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Team lead",
+    quote:
+      "Before this, we'd ask customers for reviews and most would forget by the time they got home. Now they can do it there and then.",
+    name: "Mohammed",
+    role: "Manager, Ember Kitchen",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Business owner",
+    quote:
+      "It looks professional on the counter and makes asking for reviews much less awkward. Customers just tap their phone and it opens straight away.",
+    name: "Priya",
+    role: "Store Manager, Aurelia Jewellers",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Manager",
+    quote:
+      "We've had a really positive response from customers. There's no app to download or anything complicated — one tap and they're on our review page.",
+    name: "Jay",
+    role: "Owner, The Dessert Room",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Business owner",
+    quote:
+      "Getting more reviews was something we kept putting off. Tap Five made the whole process simple and now it just happens naturally during service.",
+    name: "Raj",
+    role: "Restaurant Manager, Saffron Table",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Team lead",
+    quote:
+      "The card fits perfectly at our checkout. It's a small addition to the shop, but it gives customers a much easier way to support the business.",
+    name: "Simran",
+    role: "Owner, Willow & Thread",
     image: placeholderAvatar,
   },
   {
-    quote: "Customer testimonial placeholder — replace with a real quote once available.",
-    name: "Business name placeholder",
-    role: "Manager",
+    quote:
+      "Really impressed with how straightforward it is. We've been able to turn happy customers into Google reviews without having to constantly remind people.",
+    name: "Daniel",
+    role: "General Manager, Junction Coffee Co.",
     image: placeholderAvatar,
   },
 ];

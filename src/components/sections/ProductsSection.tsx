@@ -28,6 +28,14 @@ export function ProductsSection() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal>
+          <div className="flex justify-center">
+            <Button href={productsSection.viewAllCta.href} className="bg-tf-black text-tf-white hover:bg-tf-neutral-800">
+              {productsSection.viewAllCta.label}
+            </Button>
+          </div>
+        </Reveal>
       </Container>
     </section>
   );

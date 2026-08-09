@@ -3,12 +3,9 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { testimonials, testimonialsSection } from "@/data/site-content";
 
-/**
- * Placeholder social proof only. Replace the entries in
- * `src/data/site-content.ts` (`testimonials`) with real, verified
- * customer testimonials before launch — do not invent names,
- * businesses, star ratings or statistics.
- */
+// Testimonials content lives in `src/data/site-content.ts` (`testimonials`).
+// Column order is derived by slicing that array in groups of three, so the
+// entry order there directly controls which column each testimonial appears in.
 const columnTestimonials = testimonials.map(({ quote, name, role, image }) => ({
   text: quote,
   name,
