@@ -37,7 +37,7 @@ export function QuantityPricingSelector({
             className={cn(
               "flex w-full items-center justify-between gap-4 rounded-[var(--tf-radius-md)] border px-4 py-3.5 text-left transition-all",
               isSelected
-                ? "border-tf-black bg-tf-neutral-100"
+                ? "border-tf-accent bg-tf-neutral-100"
                 : "border-tf-neutral-200 hover:border-tf-neutral-400",
             )}
           >

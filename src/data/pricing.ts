@@ -19,13 +19,12 @@ const TODO_PLACEHOLDER_DISCOUNT_BY_QUANTITY: Record<number, number> = {
   5: 0.18,
 };
 
-// TODO(pricing): which tier(s) carry a merchandising tag, and what the tag
-// says, is also undecided. Placeholder assignment for now — configurable
-// per product rather than hardcoded into the selector UI.
-const DEFAULT_TIER_TAGS: Partial<Record<number, string>> = {
-  3: "MOST POPULAR",
-  5: "BEST VALUE",
-};
+// No tier currently carries a merchandising tag (e.g. "MOST POPULAR" or
+// "BEST VALUE"). The capability stays available — `PricingTier.tag` and the
+// selector's rendering of it are unchanged — so a future product can opt in
+// by passing its own `tierTags` to `buildPricingTiers` without further code
+// changes.
+const DEFAULT_TIER_TAGS: Partial<Record<number, string>> = {};
 
 export type PricingTier = {
   quantity: number;

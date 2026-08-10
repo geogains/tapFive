@@ -113,71 +113,60 @@ export const testimonialsSection = {
   supporting: "Real feedback from local businesses using Tap Five to collect more Google reviews.",
 };
 
-const placeholderAvatar = "/images/avatar-placeholder.svg";
-
 export const testimonials = [
   {
     quote:
       "We started seeing more Google reviews almost immediately. Customers understand exactly what to do, and it takes them seconds.",
     name: "Harvey",
     role: "Manager, Oakline Motors",
-    image: placeholderAvatar,
   },
   {
     quote:
       "Such a simple idea, but it works. We leave the card by the till and customers tap it while they're paying. Our review numbers have definitely picked up.",
     name: "Amir",
     role: "Owner, North & Bean Café",
-    image: placeholderAvatar,
   },
   {
     quote:
       "The setup was completely handled for us. The card arrived ready to use and we've already had customers leaving reviews through it.",
     name: "Sanjay",
     role: "Owner, The Sweet Pantry",
-    image: placeholderAvatar,
   },
   {
     quote:
       "Before this, we'd ask customers for reviews and most would forget by the time they got home. Now they can do it there and then.",
     name: "Mohammed",
     role: "Manager, Ember Kitchen",
-    image: placeholderAvatar,
   },
   {
     quote:
       "It looks professional on the counter and makes asking for reviews much less awkward. Customers just tap their phone and it opens straight away.",
     name: "Priya",
     role: "Store Manager, Aurelia Jewellers",
-    image: placeholderAvatar,
   },
   {
     quote:
       "We've had a really positive response from customers. There's no app to download or anything complicated — one tap and they're on our review page.",
     name: "Jay",
     role: "Owner, The Dessert Room",
-    image: placeholderAvatar,
   },
   {
     quote:
       "Getting more reviews was something we kept putting off. Tap Five made the whole process simple and now it just happens naturally during service.",
     name: "Raj",
     role: "Restaurant Manager, Saffron Table",
-    image: placeholderAvatar,
   },
   {
     quote:
       "The card fits perfectly at our checkout. It's a small addition to the shop, but it gives customers a much easier way to support the business.",
     name: "Simran",
     role: "Owner, Willow & Thread",
-    image: placeholderAvatar,
   },
   {
     quote:
       "Really impressed with how straightforward it is. We've been able to turn happy customers into Google reviews without having to constantly remind people.",
     name: "Daniel",
     role: "General Manager, Junction Coffee Co.",
-    image: placeholderAvatar,
   },
 ];
 

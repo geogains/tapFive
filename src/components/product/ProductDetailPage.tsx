@@ -106,8 +106,6 @@ export function ProductDetailPage({ product }: { product: Product }) {
                 </span>
               </div>
 
-              <ProductBenefits benefits={product.benefits} />
-
               <div className="flex flex-col gap-3">
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-tf-black">
                   Buy more, save more
@@ -155,6 +153,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
           <p className="max-w-2xl text-base leading-relaxed text-tf-neutral-600">
             {product.description}
           </p>
+          <ProductBenefits benefits={product.benefits} />
         </Container>
       </section>
 
