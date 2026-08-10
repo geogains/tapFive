@@ -65,7 +65,7 @@ export const products: Product[] = [
       "No app required",
       "One-time payment — no subscription",
     ],
-    image: "/images/google-card.png",
+    image: "/images/google-card1.png",
     price: 4000,
     priceLabel: "£40",
     features: [
@@ -126,7 +126,7 @@ export const products: Product[] = [
       "No app required",
       "One-time payment — no subscription",
     ],
-    image: "/images/instagram-card.png",
+    image: "/images/instagram-card1.png",
     price: 4000,
     priceLabel: "£40",
     features: [
@@ -187,7 +187,7 @@ export const products: Product[] = [
       "Works with compatible iPhone and Android devices",
       "One-time payment — no subscription",
     ],
-    image: "/images/custom-card.png",
+    image: "/images/custom-card1.png",
     price: 7000,
     priceLabel: "£70",
     features: [
