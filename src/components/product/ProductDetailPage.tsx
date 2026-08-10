@@ -9,7 +9,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { FAQAccordion } from "@/components/ui/FAQAccordion";
-import { useCart } from "@/components/providers/CartProvider";
+import { useCart, buildLineId } from "@/components/providers/CartProvider";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { QuantityPricingSelector } from "@/components/product/QuantityPricingSelector";
 import { ProductBenefits } from "@/components/product/ProductBenefits";
@@ -17,7 +17,10 @@ import {
   ProductConfiguration,
   emptyProductConfiguration,
   toCartConfiguration,
+  validateProductConfiguration,
+  normalizeInstagramHandle,
   type ProductConfigurationValue,
+  type ConfigurationValidationErrors,
 } from "@/components/product/ProductConfiguration";
 import { ProductHowItWorks } from "@/components/product/ProductHowItWorks";
 import { ProductCompatibility } from "@/components/product/ProductCompatibility";
@@ -31,6 +34,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
   const [configuration, setConfiguration] = useState<ProductConfigurationValue>(
     emptyProductConfiguration,
   );
+  const [configErrors, setConfigErrors] = useState<ConfigurationValidationErrors>({});
   const [added, setAdded] = useState(false);
 
   const selectedTier =
@@ -43,19 +47,56 @@ export function ProductDetailPage({ product }: { product: Product }) {
     return () => clearTimeout(timeout);
   }, [added]);
 
+  // Once a field has an error showing, re-check it on every keystroke so the
+  // message clears the moment it's resolved — but only bother re-validating
+  // at all once there's something to potentially clear.
+  const handleConfigurationChange = (next: ProductConfigurationValue) => {
+    setConfiguration(next);
+    setConfigErrors((current) => {
+      if (Object.keys(current).length === 0) return current;
+      const revalidated = validateProductConfiguration(product.configurationType, next);
+      const stillInvalid: ConfigurationValidationErrors = {};
+      (Object.keys(current) as Array<keyof ProductConfigurationValue>).forEach((key) => {
+        if (revalidated.errors[key]) stillInvalid[key] = revalidated.errors[key];
+      });
+      return stillInvalid;
+    });
+  };
+
   const handleAddToCart = () => {
+    // Light formatting (e.g. adding a leading "@") before validating, so the
+    // check and the stored value agree with what the customer will see.
+    const normalizedConfiguration: ProductConfigurationValue =
+      product.configurationType === "instagram"
+        ? { ...configuration, instagramHandle: normalizeInstagramHandle(configuration.instagramHandle) }
+        : configuration;
+
+    const validation = validateProductConfiguration(product.configurationType, normalizedConfiguration);
+    if (!validation.valid) {
+      setConfigErrors(validation.errors);
+      return;
+    }
+    setConfigErrors({});
+    if (normalizedConfiguration !== configuration) {
+      setConfiguration(normalizedConfiguration);
+    }
+
+    const cartConfiguration = toCartConfiguration(product.configurationType, normalizedConfiguration);
+
     addItem(
       {
         slug: product.slug,
-        // Distinct per selected quantity tier so a bundle never silently merges
-        // with — or overwrites the price of — a different tier/quantity line
-        // for the same product already in the cart.
-        lineId: `${product.slug}--x${selectedTier.quantity}`,
+        // Identity is product + configuration content (not quantity/tier),
+        // so two different configurations of the same product never merge
+        // and silently overwrite one another, while quantity changes and
+        // re-selecting a different tier for the SAME configuration keep
+        // updating this one line — see `buildLineId` for the full rationale.
+        lineId: buildLineId(product.slug, cartConfiguration),
         name: product.name,
         price: selectedTier.pricePerCard,
         image: product.image,
         tierLabel: selectedTier.quantity > 1 ? `${selectedTier.quantity}-card bundle` : undefined,
-        configuration: toCartConfiguration(product.configurationType, configuration),
+        configuration: cartConfiguration,
       },
       selectedTier.quantity,
     );
@@ -120,7 +161,8 @@ export function ProductDetailPage({ product }: { product: Product }) {
               <ProductConfiguration
                 configurationType={product.configurationType}
                 value={configuration}
-                onChange={setConfiguration}
+                onChange={handleConfigurationChange}
+                errors={configErrors}
               />
 
               <Button

@@ -95,6 +95,52 @@ function clampQuantity(slug: string, quantity: number): number {
 }
 
 /**
+ * Deterministic per-line identity: product + configuration content only —
+ * quantity/tier is intentionally excluded, so changing quantity in the cart
+ * (or re-selecting a different tier for the same configuration) always
+ * updates the same line rather than fragmenting it. `resolveCartItem`
+ * re-derives the correct price for whatever quantity the line ends up at,
+ * so nothing about pricing correctness depends on quantity being part of
+ * this id.
+ *
+ * Two adds with identical configuration resolve to the same lineId and
+ * merge (quantity increments). Two adds with different configuration
+ * resolve to different lineIds and become separate lines — this is what
+ * stops e.g. "Business A" and "Business B" from silently overwriting one
+ * another under the same line.
+ *
+ * Uses a small deterministic string hash rather than Math.random()/
+ * timestamps, so the same configuration always produces the same id across
+ * renders, reloads and devices. Not cryptographic — this is a client-side
+ * identity key, not a security boundary.
+ */
+export function buildLineId(slug: string, configuration?: Record<string, string>): string {
+  if (!configuration) return slug;
+
+  // A control character (never typed by a real user) separates pairs, so a
+  // value that happens to contain "key=" text can't concatenate into
+  // looking like a different adjacent pair and accidentally collide with
+  // otherwise-different configuration.
+  const PAIR_SEPARATOR = String.fromCharCode(1);
+  const canonical = Object.entries(configuration)
+    .filter(([, value]) => value.trim() !== "")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}=${value}`)
+    .join(PAIR_SEPARATOR);
+
+  if (!canonical) return slug;
+  return `${slug}::${hashConfiguration(canonical)}`;
+}
+
+function hashConfiguration(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/**
  * Re-derives price for a stored cart line from the product's live pricing
  * tiers, keyed off the line's current quantity — this is the single place
  * that turns "quantity" into "price" for every product, so nothing in the

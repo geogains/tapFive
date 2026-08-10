@@ -1,13 +1,15 @@
 "use client";
 
 import { AtSign } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type InstagramConfigFieldProps = {
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 };
 
-export function InstagramConfigField({ value, onChange }: InstagramConfigFieldProps) {
+export function InstagramConfigField({ value, onChange, error }: InstagramConfigFieldProps) {
   return (
     <div className="flex flex-col gap-3 rounded-[var(--tf-radius-lg)] border border-tf-neutral-200 p-5">
       <div className="flex flex-col gap-1">
@@ -30,9 +32,15 @@ export function InstagramConfigField({ value, onChange }: InstagramConfigFieldPr
           onChange={(event) => onChange(event.target.value)}
           placeholder="@yourbusiness"
           aria-label="Instagram username or profile URL"
-          className="tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border border-tf-neutral-200 bg-tf-white py-2.5 pl-10 pr-3.5 text-sm text-tf-black placeholder:text-tf-neutral-400"
+          aria-invalid={error ? true : undefined}
+          className={cn(
+            "tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border bg-tf-white py-2.5 pl-10 pr-3.5 text-sm text-tf-black placeholder:text-tf-neutral-400",
+            error ? "border-red-300" : "border-tf-neutral-200",
+          )}
         />
       </div>
+
+      {error ? <p className="text-xs font-medium text-red-600">{error}</p> : null}
     </div>
   );
 }

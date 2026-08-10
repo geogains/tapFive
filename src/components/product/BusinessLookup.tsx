@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type BusinessLookupValue = {
   businessQuery: string;
@@ -11,6 +12,8 @@ export type BusinessLookupValue = {
 type BusinessLookupProps = {
   value: BusinessLookupValue;
   onChange: (value: BusinessLookupValue) => void;
+  /** Shown when neither `businessQuery` nor `manualDetails` has been filled in. */
+  error?: string;
 };
 
 /**
@@ -25,8 +28,13 @@ type BusinessLookupProps = {
  *     `businessQuery` so the order can be matched to the right listing
  *   - keep the "Can't find your business?" manual fallback for edge cases
  */
-export function BusinessLookup({ value, onChange }: BusinessLookupProps) {
-  const [showManualEntry, setShowManualEntry] = useState(false);
+export function BusinessLookup({ value, onChange, error }: BusinessLookupProps) {
+  const [manuallyToggled, setManuallyToggled] = useState(false);
+  // If validation fails, make sure the manual fallback — the other valid
+  // way to satisfy the requirement — is visible rather than hidden away
+  // behind the toggle. Derived rather than synced via an effect, so an
+  // error never fights the user's own subsequent toggle.
+  const showManualEntry = manuallyToggled || Boolean(error);
 
   return (
     <div className="flex flex-col gap-3 rounded-[var(--tf-radius-lg)] border border-tf-neutral-200 p-5">
@@ -50,13 +58,17 @@ export function BusinessLookup({ value, onChange }: BusinessLookupProps) {
           onChange={(event) => onChange({ ...value, businessQuery: event.target.value })}
           placeholder="Start typing your business name…"
           aria-label="Search for your business"
-          className="tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border border-tf-neutral-200 bg-tf-white py-2.5 pl-10 pr-3.5 text-sm text-tf-black placeholder:text-tf-neutral-400"
+          aria-invalid={error ? true : undefined}
+          className={cn(
+            "tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border bg-tf-white py-2.5 pl-10 pr-3.5 text-sm text-tf-black placeholder:text-tf-neutral-400",
+            error ? "border-red-300" : "border-tf-neutral-200",
+          )}
         />
       </div>
 
       <button
         type="button"
-        onClick={() => setShowManualEntry((current) => !current)}
+        onClick={() => setManuallyToggled((current) => !current)}
         aria-expanded={showManualEntry}
         className="tf-focus-ring self-start text-xs font-medium text-tf-neutral-500 underline-offset-2 hover:text-tf-black hover:underline"
       >
@@ -74,10 +86,16 @@ export function BusinessLookup({ value, onChange }: BusinessLookupProps) {
             onChange={(event) => onChange({ ...value, manualDetails: event.target.value })}
             placeholder="Business name, address, and any other details that will help us find your listing…"
             rows={3}
-            className="tf-focus-ring w-full resize-none rounded-[var(--tf-radius-sm)] border border-tf-neutral-200 bg-tf-white p-3 text-sm text-tf-black placeholder:text-tf-neutral-400"
+            aria-invalid={error ? true : undefined}
+            className={cn(
+              "tf-focus-ring w-full resize-none rounded-[var(--tf-radius-sm)] border bg-tf-white p-3 text-sm text-tf-black placeholder:text-tf-neutral-400",
+              error ? "border-red-300" : "border-tf-neutral-200",
+            )}
           />
         </div>
       ) : null}
+
+      {error ? <p className="text-xs font-medium text-red-600">{error}</p> : null}
     </div>
   );
 }

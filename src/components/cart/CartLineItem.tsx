@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { ResolvedCartItem } from "@/components/providers/CartProvider";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
+import { CartItemConfiguration } from "@/components/cart/CartItemConfiguration";
 import { cn, formatPrice } from "@/lib/utils";
 
 type CartLineItemProps = {
@@ -84,6 +85,8 @@ export function CartLineItem({
           </div>
         </div>
       </div>
+
+      <CartItemConfiguration configuration={item.configuration} />
 
       <div className="flex items-center justify-between">
         <QuantityStepper

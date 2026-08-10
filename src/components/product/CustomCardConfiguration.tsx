@@ -1,6 +1,7 @@
 "use client";
 
 import { Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type CustomCardConfigValue = {
   businessName: string;
@@ -9,9 +10,15 @@ export type CustomCardConfigValue = {
   logoFileName: string;
 };
 
+export type CustomCardConfigErrors = {
+  businessName?: string;
+  destination?: string;
+};
+
 type CustomCardConfigurationProps = {
   value: CustomCardConfigValue;
   onChange: (value: CustomCardConfigValue) => void;
+  errors?: CustomCardConfigErrors;
 };
 
 /**
@@ -22,7 +29,7 @@ type CustomCardConfigurationProps = {
  * this up to real storage (and stop relying on the client-side filename)
  * before this goes live.
  */
-export function CustomCardConfiguration({ value, onChange }: CustomCardConfigurationProps) {
+export function CustomCardConfiguration({ value, onChange, errors }: CustomCardConfigurationProps) {
   return (
     <div className="flex flex-col gap-5 rounded-[var(--tf-radius-lg)] border border-tf-neutral-200 p-5">
       <div className="flex flex-col gap-1">
@@ -44,8 +51,15 @@ export function CustomCardConfiguration({ value, onChange }: CustomCardConfigura
           value={value.businessName}
           onChange={(event) => onChange({ ...value, businessName: event.target.value })}
           placeholder="Your business name"
-          className="tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border border-tf-neutral-200 bg-tf-white px-3.5 py-2.5 text-sm text-tf-black placeholder:text-tf-neutral-400"
+          aria-invalid={errors?.businessName ? true : undefined}
+          className={cn(
+            "tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border bg-tf-white px-3.5 py-2.5 text-sm text-tf-black placeholder:text-tf-neutral-400",
+            errors?.businessName ? "border-red-300" : "border-tf-neutral-200",
+          )}
         />
+        {errors?.businessName ? (
+          <p className="text-xs font-medium text-red-600">{errors.businessName}</p>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -80,8 +94,15 @@ export function CustomCardConfiguration({ value, onChange }: CustomCardConfigura
           value={value.destination}
           onChange={(event) => onChange({ ...value, destination: event.target.value })}
           placeholder="Where should customers be sent when they tap or scan?"
-          className="tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border border-tf-neutral-200 bg-tf-white px-3.5 py-2.5 text-sm text-tf-black placeholder:text-tf-neutral-400"
+          aria-invalid={errors?.destination ? true : undefined}
+          className={cn(
+            "tf-focus-ring w-full rounded-[var(--tf-radius-sm)] border bg-tf-white px-3.5 py-2.5 text-sm text-tf-black placeholder:text-tf-neutral-400",
+            errors?.destination ? "border-red-300" : "border-tf-neutral-200",
+          )}
         />
+        {errors?.destination ? (
+          <p className="text-xs font-medium text-red-600">{errors.destination}</p>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-1.5">
