@@ -1,36 +1,11 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { Check, ArrowUpRight } from "lucide-react";
+import { Check } from "lucide-react";
 import type { Product } from "@/data/products";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { useCart } from "@/components/providers/CartProvider";
 import { cn } from "@/lib/utils";
 
 export function ProductCard({ product, className }: { product: Product; className?: string }) {
-  const { addItem, openCart } = useCart();
-  const [added, setAdded] = useState(false);
-
-  useEffect(() => {
-    if (!added) return;
-    const timeout = setTimeout(() => setAdded(false), 1500);
-    return () => clearTimeout(timeout);
-  }, [added]);
-
-  const handleAddToCart = () => {
-    addItem({
-      slug: product.slug,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-    });
-    setAdded(true);
-    openCart();
-  };
-
   return (
     <article
       id={product.slug}
@@ -84,40 +59,27 @@ export function ProductCard({ product, className }: { product: Product; classNam
           ))}
         </ul>
 
-        <div className="mt-auto flex flex-col items-start gap-3 pt-2">
-          <Button
-            type="button"
-            onClick={handleAddToCart}
-            className="relative z-10 w-full bg-tf-black text-tf-white hover:bg-tf-neutral-800"
-          >
-            {added ? (
-              <>
-                <Check className="h-4 w-4" aria-hidden="true" />
-                Added
-              </>
-            ) : (
-              "Add to Cart"
-            )}
-          </Button>
-
+        <div className="mt-auto pt-2">
           {/*
-            Stretched-link pattern: this stays the one real, keyboard-focusable
+            Stretched-link pattern: this is the one real, keyboard-focusable
             anchor for the card (no wrapping <a> around the whole card, no
-            nested-interactive-element issues). Its `after:` pseudo-element is
-            absolutely positioned against the nearest positioned ancestor
+            nested-interactive-element issues). Its `after:` pseudo-element
+            is absolutely positioned against the nearest positioned ancestor
             (the <article>), so it visually covers the entire card and makes
-            it clickable/tappable everywhere — except where the Add to Cart
-            button above sits at a higher z-index, so it keeps intercepting
-            its own clicks without needing any stopPropagation logic.
+            it clickable/tappable everywhere.
+            There is no other interactive element on this card — Add to Cart
+            was removed from here, since configuration must be captured on
+            the individual product page first — so unlike the previous
+            version of this card, nothing needs a z-index carve-out or
+            stopPropagation to keep working: this button IS the whole
+            card's destination.
           */}
-          <Link
+          <Button
             href={product.href}
-            aria-label={`View product: ${product.name}`}
-            className="tf-focus-ring inline-flex items-center gap-1.5 text-sm font-semibold text-tf-black transition-colors after:absolute after:inset-0 after:z-0 after:content-[''] hover:text-tf-accent"
+            className="w-full bg-tf-black text-tf-white hover:bg-tf-neutral-800 after:absolute after:inset-0 after:z-0 after:content-['']"
           >
-            View product
-            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+            View Product
+          </Button>
         </div>
       </div>
     </article>
