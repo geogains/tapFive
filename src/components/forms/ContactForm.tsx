@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 const fieldClasses =
@@ -58,9 +59,35 @@ export function ContactForm() {
     return (
       <div
         role="status"
-        className="rounded-[var(--tf-radius-md)] border border-tf-accent/30 bg-tf-accent-soft p-6 text-sm text-tf-black"
+        className="flex flex-col items-start gap-6 rounded-[var(--tf-radius-lg)] border border-tf-accent/20 bg-tf-accent-soft p-8 sm:p-10"
       >
-        Thanks — your message has been sent. We&apos;ll get back to you as soon as we can.
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-tf-accent text-tf-white">
+          <Check className="h-6 w-6" aria-hidden="true" />
+        </span>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-display text-2xl font-medium tracking-tight text-tf-black">Message sent</h3>
+          <p className="text-sm leading-relaxed text-tf-neutral-700">
+            Thanks for getting in touch. We&apos;ve received your message and will get back to you as soon as
+            possible.
+          </p>
+          <p className="text-sm leading-relaxed text-tf-neutral-500">
+            In the meantime, you can continue browsing our cards and products.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1">
+          <Button href="/products" className="bg-tf-black text-tf-white hover:bg-tf-neutral-800">
+            View Products
+          </Button>
+          <button
+            type="button"
+            onClick={() => setStatus("idle")}
+            className="tf-focus-ring rounded-[var(--tf-radius-sm)] text-sm font-medium text-tf-neutral-500 underline-offset-2 hover:text-tf-black hover:underline"
+          >
+            Send another message
+          </button>
+        </div>
       </div>
     );
   }
