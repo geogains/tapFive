@@ -258,7 +258,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(() => {
+    setItems([]);
+    // Also written synchronously here, not left to the `hydrated`-gated
+    // persistence effect below: a caller may invoke `clearCart()` from a
+    // descendant's mount effect (e.g. the checkout success page) before
+    // this provider's own hydration effect has run. React fires effects
+    // bottom-up on initial mount, so that descendant effect runs first —
+    // if this write waited for `hydrated`, the hydration effect would run
+    // next, read the still-stale `tapfive-cart` key, and silently restore
+    // the just-cleared cart. Writing immediately closes that window: by
+    // the time hydration reads localStorage, it reads the empty array.
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    } catch {
+      // Inaccessible storage — in-memory state is already cleared above.
+    }
+  }, []);
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 

@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { formatPrice } from "@/lib/utils";
 import { getStripeClient } from "@/lib/server/stripeClient";
+import { ClearCartOnSuccess } from "@/components/checkout/ClearCartOnSuccess";
 
 export const metadata: Metadata = {
   title: "Order received",
@@ -32,13 +33,15 @@ export default async function CheckoutSuccessPage({
 
   return (
     <div>
+      <ClearCartOnSuccess paid={isPaid} />
+
       <PageHero
         eyebrow="Checkout"
         heading={isPaid ? "Payment received" : "Order received"}
         supporting={
           isPaid
             ? "Thank you — your Tap Five order has been received and your payment was successful."
-            : "Thank you — we&apos;re confirming your payment now. This can take a moment for some payment methods."
+            : "Thank you — we're confirming your payment now. This can take a moment for some payment methods."
         }
       />
 
