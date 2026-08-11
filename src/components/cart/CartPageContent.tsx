@@ -7,7 +7,7 @@ import { CartLineItem } from "@/components/cart/CartLineItem";
 import { formatPrice } from "@/lib/utils";
 
 export function CartPageContent() {
-  const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const { items, subtotal, promoDiscount, total, updateQuantity, removeItem } = useCart();
 
   if (items.length === 0) {
     return (
@@ -46,9 +46,21 @@ export function CartPageContent() {
       <div className="flex h-fit flex-col gap-5 rounded-[var(--tf-radius-lg)] border border-tf-neutral-200 p-6">
         <h2 className="font-display text-lg font-medium tracking-tight text-tf-black">Summary</h2>
 
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-tf-neutral-600">Subtotal</span>
-          <span className="text-base font-semibold text-tf-black">{formatPrice(subtotal)}</span>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-tf-neutral-600">Subtotal</span>
+            <span className="text-tf-black">{formatPrice(subtotal)}</span>
+          </div>
+          {promoDiscount > 0 ? (
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-tf-accent">TAP25 · 25% off</span>
+              <span className="font-medium text-tf-accent">-{formatPrice(promoDiscount)}</span>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between border-t border-tf-neutral-200 pt-3">
+            <span className="text-base font-semibold text-tf-black">Total</span>
+            <span className="text-base font-semibold text-tf-black">{formatPrice(total)}</span>
+          </div>
         </div>
 
         <Button

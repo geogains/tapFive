@@ -9,7 +9,7 @@ import { CartLineItem } from "@/components/cart/CartLineItem";
 import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer() {
-  const { items, subtotal, isOpen, closeCart, updateQuantity, removeItem } = useCart();
+  const { items, subtotal, promoDiscount, total, isOpen, closeCart, updateQuantity, removeItem } = useCart();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -95,9 +95,21 @@ export function CartDrawer() {
                 </ul>
 
                 <div className="flex flex-col gap-4 border-t border-tf-neutral-200 px-6 py-6">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-tf-neutral-600">Subtotal</span>
-                    <span className="text-base font-semibold text-tf-black">{formatPrice(subtotal)}</span>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-tf-neutral-600">Subtotal</span>
+                      <span className="text-tf-black">{formatPrice(subtotal)}</span>
+                    </div>
+                    {promoDiscount > 0 ? (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-tf-accent">TAP25 · 25% off</span>
+                        <span className="font-medium text-tf-accent">-{formatPrice(promoDiscount)}</span>
+                      </div>
+                    ) : null}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-base font-semibold text-tf-black">Total</span>
+                      <span className="text-base font-semibold text-tf-black">{formatPrice(total)}</span>
+                    </div>
                   </div>
 
                   <Button href="/cart" variant="secondary" className="border-tf-neutral-300 text-tf-black hover:border-tf-black w-full" onClick={closeCart}>

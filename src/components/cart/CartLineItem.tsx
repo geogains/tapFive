@@ -67,21 +67,28 @@ export function CartLineItem({
             {item.name}
           </h3>
 
-          <div className="flex flex-col sm:items-end">
-            {item.quantity > 1 ? (
-              <>
-                <span className="whitespace-nowrap text-sm font-semibold text-tf-accent">
-                  {formatPrice(item.lineTotal)} total
+          <div className="flex flex-col gap-0.5 sm:items-end">
+            <div className="flex items-baseline gap-2">
+              {item.lineDiscount > 0 ? (
+                <span className="whitespace-nowrap text-xs text-tf-neutral-400 line-through">
+                  {formatPrice(item.normalLineTotal)}
                 </span>
-                <span className="whitespace-nowrap text-xs text-tf-neutral-500">
-                  {formatPrice(item.price)} each
-                </span>
-              </>
-            ) : (
+              ) : null}
               <span className="whitespace-nowrap text-sm font-semibold text-tf-accent">
-                {formatPrice(item.price)}
+                {formatPrice(item.lineTotal)}
+                {item.quantity > 1 ? " total" : ""}
               </span>
-            )}
+            </div>
+            {item.quantity > 1 ? (
+              <span className="whitespace-nowrap text-xs text-tf-neutral-500">
+                {formatPrice(item.price)} each
+              </span>
+            ) : null}
+            {item.lineDiscount > 0 ? (
+              <span className="whitespace-nowrap text-[11px] font-medium text-tf-accent">
+                TAP25 · 25% off
+              </span>
+            ) : null}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { WhyTapFive } from "@/components/sections/WhyTapFive";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
+import { TapPromoModal } from "@/components/promo/TapPromoModal";
 
 export const metadata: Metadata = {
   title: "Tap Five | NFC Google Review Cards for Local Businesses",
@@ -25,6 +26,7 @@ export default function Home() {
       <Testimonials />
       <FAQSection />
       <CTASection />
+      <TapPromoModal />
     </div>
   );
 }

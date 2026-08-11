@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { products } from "@/data/products";
+import { calculatePromotionalPrice } from "@/data/promotion";
 
 export type CartItem = {
   /** Product identity — matches `Product.slug`, not the detail-page route slug. */
@@ -29,9 +30,11 @@ export type CartItem = {
    * an initial snapshot — it is NOT trusted for any calculation. Every read
    * through `useCart()` re-derives the live per-unit price and line total
    * from the product's own `pricingTiers` (see `resolveCartItem` below),
-   * keyed off the line's current `quantity`. This is what makes reducing
+   * keyed off the line's current `quantity`, with the TAP25 promotion
+   * (`src/data/promotion.ts`) applied on top. This is what makes reducing
    * quantity in the cart correctly step back down through the tiers instead
-   * of preserving a stale bundle discount.
+   * of preserving a stale bundle discount, and what stops TAP25 from ever
+   * compounding across re-renders.
    */
   price: number;
   image: string;
@@ -56,8 +59,14 @@ export type CartItem = {
  * pricing tiers currently support.
  */
 export type ResolvedCartItem = CartItem & {
-  /** Authoritative total for this line (pence) — the selected tier's exact total, not `price * quantity`, so it can never drift from rounding. */
+  /** Authoritative TAP25-discounted total for this line (pence) — not `price * quantity`, so it can never drift from rounding. */
   lineTotal: number;
+  /** Pre-discount per-unit tier price (pence), for the crossed-out "was" display. */
+  normalPrice: number;
+  /** Pre-discount tier total (pence) this line's `lineTotal` was discounted from. */
+  normalLineTotal: number;
+  /** Amount saved on this line by TAP25 (pence) — `normalLineTotal - lineTotal`. Zero when the promotion is inactive. */
+  lineDiscount: number;
   /** Highest quantity defined in this product's pricing tiers. The "+" control should stop here (see edge-case notes in `updateQuantity`). */
   maxQuantity: number;
 };
@@ -67,7 +76,12 @@ type AddItemInput = Omit<CartItem, "quantity">;
 type CartContextValue = {
   items: ResolvedCartItem[];
   itemCount: number;
+  /** Pre-discount subtotal (pence) — sum of every line's normal tier total. */
   subtotal: number;
+  /** Total TAP25 saving across the whole cart (pence) — `subtotal - total`. Zero when the promotion is inactive. */
+  promoDiscount: number;
+  /** Final payable total (pence) with TAP25 applied — sum of every line's discounted total. */
+  total: number;
   isOpen: boolean;
   /** `quantity` defaults to 1 — pass the full tier quantity to add a multi-buy bundle in a single call rather than incrementing one at a time. */
   addItem: (item: AddItemInput, quantity?: number) => void;
@@ -142,9 +156,15 @@ function hashConfiguration(input: string): string {
 
 /**
  * Re-derives price for a stored cart line from the product's live pricing
- * tiers, keyed off the line's current quantity — this is the single place
- * that turns "quantity" into "price" for every product, so nothing in the
- * cart UI hardcodes any one product's pricing.
+ * tiers, keyed off the line's current quantity, then layers the TAP25
+ * promotion on top of that tier price — this is the single place that
+ * turns "quantity" into "price" for every product, so nothing in the cart
+ * UI hardcodes any one product's pricing or its own `× 0.75`.
+ *
+ * Sequence is always: quantity → tier → normal price → TAP25 → discounted
+ * price. Because this always starts from the tier's normal total (never
+ * from a previously-discounted value sitting in state), the discount can
+ * never compound across renders or quantity changes.
  */
 function resolveCartItem(item: CartItem): ResolvedCartItem {
   const product = products.find((p) => p.slug === item.slug);
@@ -152,17 +172,33 @@ function resolveCartItem(item: CartItem): ResolvedCartItem {
 
   if (!tiers || tiers.length === 0) {
     // Unknown/removed product — fall back to the stored snapshot rather than crashing.
-    return { ...item, lineTotal: item.price * item.quantity, maxQuantity: item.quantity };
+    const normalPrice = item.price;
+    const normalLineTotal = normalPrice * item.quantity;
+    const lineTotal = calculatePromotionalPrice(normalLineTotal);
+    return {
+      ...item,
+      price: calculatePromotionalPrice(normalPrice),
+      lineTotal,
+      normalPrice,
+      normalLineTotal,
+      lineDiscount: normalLineTotal - lineTotal,
+      maxQuantity: item.quantity,
+    };
   }
 
   const maxQuantity = tiers[tiers.length - 1].quantity;
   const tierQuantity = Math.max(1, Math.min(item.quantity, maxQuantity));
   const tier = tiers.find((t) => t.quantity === tierQuantity) ?? tiers[0];
 
+  const lineTotal = calculatePromotionalPrice(tier.totalPrice);
+
   return {
     ...item,
-    price: tier.pricePerCard,
-    lineTotal: tier.totalPrice,
+    price: calculatePromotionalPrice(tier.pricePerCard),
+    lineTotal,
+    normalPrice: tier.pricePerCard,
+    normalLineTotal: tier.totalPrice,
+    lineDiscount: tier.totalPrice - lineTotal,
     tierLabel: item.quantity > 1 ? `${item.quantity}-card bundle` : undefined,
     maxQuantity,
   };
@@ -237,15 +273,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const subtotal = useMemo(
+    () => resolvedItems.reduce((sum, item) => sum + item.normalLineTotal, 0),
+    [resolvedItems],
+  );
+
+  const total = useMemo(
     () => resolvedItems.reduce((sum, item) => sum + item.lineTotal, 0),
     [resolvedItems],
   );
+
+  const promoDiscount = subtotal - total;
 
   const value = useMemo<CartContextValue>(
     () => ({
       items: resolvedItems,
       itemCount,
       subtotal,
+      promoDiscount,
+      total,
       isOpen,
       addItem,
       removeItem,
@@ -258,6 +303,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       resolvedItems,
       itemCount,
       subtotal,
+      promoDiscount,
+      total,
       isOpen,
       addItem,
       removeItem,
