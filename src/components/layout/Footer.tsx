@@ -44,10 +44,7 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="text-sm font-semibold text-white">Contact</h3>
             <ul className="flex flex-col gap-2 text-sm text-tf-neutral-400">
-              {/* Placeholder contact details — update with real business details. */}
               <li>{company.email}</li>
-              <li>{company.phone}</li>
-              <li>{company.address}</li>
             </ul>
           </div>
         </div>

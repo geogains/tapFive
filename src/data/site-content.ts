@@ -8,13 +8,12 @@
 
 export const company = {
   name: "Tap Five",
-  legalName: "Tap Five Ltd",
+  /** Tap Five trades as a sole trader — there is no separate limited company, so this is never "Tap Five Ltd". */
+  legalName: "Tap Five",
   tagline: "NFC Google Review cards for local businesses",
   description:
     "Tap Five designs premium NFC review cards that turn a single tap into a genuine Google review — no app, no typing a link, no friction.",
-  email: "hello@tapfive.co.uk",
-  phone: "+44 (0)20 7946 0000",
-  address: "London, United Kingdom",
+  email: "support@tapfive.co.uk",
   foundedYear: 2025,
 };
 
@@ -194,12 +193,14 @@ export const contactPage = {
 export const legalPages = {
   privacy: {
     heading: "Privacy Policy",
-    updated: "This is placeholder content for template purposes only.",
+    updated: "Last updated: 11 August 2026",
   },
   terms: {
     heading: "Terms & Conditions",
-    updated: "This is placeholder content for template purposes only.",
+    updated: "Last updated: 11 August 2026",
   },
+  // Not part of this update — src/app/shipping-returns/page.tsx remains a
+  // placeholder pending real dispatch/delivery/returns policy content.
   shipping: {
     heading: "Shipping & Returns",
     updated: "This is placeholder content for template purposes only.",

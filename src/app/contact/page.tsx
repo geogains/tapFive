@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail } from "lucide-react";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container } from "@/components/ui/Container";
 import { ContactForm } from "@/components/forms/ContactForm";
@@ -25,23 +25,12 @@ export default function ContactPage() {
             <h2 className="font-display text-xl font-medium tracking-tight text-tf-black">
               Contact details
             </h2>
-            {/* Placeholder contact details — update with real business details. */}
             <ul className="flex flex-col gap-5 text-sm text-tf-neutral-700">
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-tf-accent" aria-hidden="true" />
                 <a href={`mailto:${company.email}`} className="tf-focus-ring hover:text-tf-accent">
                   {company.email}
                 </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-tf-accent" aria-hidden="true" />
-                <a href={`tel:${company.phone.replace(/[^+\d]/g, "")}`} className="tf-focus-ring hover:text-tf-accent">
-                  {company.phone}
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-tf-accent" aria-hidden="true" />
-                <span>{company.address}</span>
               </li>
             </ul>
           </div>
