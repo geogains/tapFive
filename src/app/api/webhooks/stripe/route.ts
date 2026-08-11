@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { getStripeClient } from "@/lib/server/stripeClient";
+import { markOrderPaidFromWebhook, markOrderPaymentFailedFromWebhook } from "@/lib/server/orders";
 
 // Stripe's Node SDK (and its webhook signature verification) needs the Node runtime.
 export const runtime = "nodejs";
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     case "checkout.session.completed": {
       const session = event.data.object;
       if (session.payment_status === "paid" || session.payment_status === "no_payment_required") {
-        handlePaidCheckoutSession(session);
+        await handlePaidCheckoutSession(session);
       } else {
         console.log(
           `Checkout session ${session.id} completed but payment is still pending (${session.payment_status}) — awaiting async_payment_succeeded/failed.`,
@@ -59,13 +60,12 @@ export async function POST(request: NextRequest) {
     }
 
     case "checkout.session.async_payment_succeeded": {
-      handlePaidCheckoutSession(event.data.object);
+      await handlePaidCheckoutSession(event.data.object);
       break;
     }
 
     case "checkout.session.async_payment_failed": {
-      const session = event.data.object;
-      console.warn(`Checkout session ${session.id} payment failed (async payment method).`);
+      await handleFailedCheckoutSession(event.data.object);
       break;
     }
 
@@ -80,37 +80,73 @@ export async function POST(request: NextRequest) {
 
 /**
  * The single point where a Checkout Session is treated as "money has
- * actually arrived." Not yet wired to persistence — there is no order
- * database connected yet (see
- * `supabase/migrations/20260810120000_create_orders_schema.sql` for the
- * schema this is designed to fill in as the next step). For now this logs
- * everything needed to manually fulfil the order.
+ * actually arrived." Marks the corresponding Supabase `orders` row `paid`
+ * — see `markOrderPaidFromWebhook` in `src/lib/server/orders.ts` for the
+ * idempotency/race-safety guarantees (duplicate deliveries no-op, `paid_at`
+ * is never rewritten, concurrent deliveries can't double-apply).
  *
- * IMPORTANT — idempotency: Stripe documents "at least once" webhook
- * delivery, so this can run more than once for the same session (retries,
- * duplicate deliveries). Right now that only repeats a log line, which is
- * harmless. It stops being harmless the moment this function gains a real
- * side effect (sending a confirmation email, decrementing stock, writing an
- * order row). At that point, check `session.id` against
- * `orders.stripe_checkout_session_id` (the unique column already exists in
- * the schema above) before acting, so a retried delivery updates the same
- * row instead of duplicating fulfilment.
+ * The order is located via `session.metadata.order_id` — the Supabase
+ * order UUID set at Checkout Session creation time (see
+ * `src/app/api/checkout/route.ts` / `buildCheckoutMetadata`) — rather than
+ * `orders.stripe_checkout_session_id`, so this still works even if the
+ * (best-effort, non-fatal) write of that column back onto the order failed
+ * at creation time; `markOrderPaidFromWebhook` backfills it here.
  */
-function handlePaidCheckoutSession(session: Stripe.Checkout.Session) {
-  const shipping = session.collected_information?.shipping_details;
+async function handlePaidCheckoutSession(session: Stripe.Checkout.Session) {
+  const orderId = session.metadata?.order_id;
+  if (!orderId) {
+    // Only expected for a session Tap Five's own checkout route didn't
+    // create (e.g. a Stripe Dashboard test session) — nothing to persist,
+    // but logged loudly since for a real order this would be a bug.
+    console.error("Stripe checkout completed but session has no metadata.order_id — cannot mark any order paid:", session.id);
+    return;
+  }
 
-  console.log("Stripe checkout paid:", {
+  const paymentIntentId =
+    typeof session.payment_intent === "string" ? session.payment_intent : (session.payment_intent?.id ?? null);
+
+  const result = await markOrderPaidFromWebhook({
+    orderId,
     sessionId: session.id,
-    paymentIntentId:
-      typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id,
+    paymentIntentId,
+    customerEmail: session.customer_details?.email ?? null,
+    customerName: session.customer_details?.name ?? null,
+    // Stripe's own final charged amount — includes any additional Stripe
+    // promotion code applied at Checkout on top of the TAP25-adjusted
+    // Price IDs. Validated inside markOrderPaidFromWebhook before use.
     amountTotal: session.amount_total,
-    currency: session.currency,
-    customerEmail: session.customer_details?.email,
-    customerName: session.customer_details?.name,
-    customerPhone: session.customer_details?.phone,
-    shippingName: shipping?.name,
-    shippingAddress: shipping?.address,
-    orderLines: session.metadata?.tap5_order_lines,
-    metadata: session.metadata,
   });
+
+  if (!result.ok) {
+    console.error("Failed to mark order paid from webhook:", orderId, "session:", session.id, "reason:", result.reason);
+    return;
+  }
+
+  console.log(
+    result.alreadyPaid
+      ? `Order ${orderId} was already paid — duplicate webhook delivery ignored.`
+      : `Order ${orderId} marked paid (session ${session.id}, amount ${session.amount_total} ${session.currency}).`,
+  );
+}
+
+/** Mirrors `handlePaidCheckoutSession` for the `async_payment_failed` case — see `markOrderPaymentFailedFromWebhook` for why this can never downgrade an already-paid order. */
+async function handleFailedCheckoutSession(session: Stripe.Checkout.Session) {
+  const orderId = session.metadata?.order_id;
+  if (!orderId) {
+    console.error("Stripe checkout async payment failed but session has no metadata.order_id:", session.id);
+    return;
+  }
+
+  const result = await markOrderPaymentFailedFromWebhook({ orderId, sessionId: session.id });
+
+  if (!result.ok) {
+    console.error("Failed to mark order payment_failed from webhook:", orderId, "session:", session.id);
+    return;
+  }
+
+  console.log(
+    result.skipped
+      ? `Order ${orderId} was not in 'pending' status — payment_failed webhook ignored (already paid or already terminal).`
+      : `Order ${orderId} marked payment_failed (session ${session.id}).`,
+  );
 }

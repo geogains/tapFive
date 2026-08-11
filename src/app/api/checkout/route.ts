@@ -3,6 +3,7 @@ import { validateAndPriceCart, type CartLineInput } from "@/lib/server/orderPric
 import { getStripePriceId } from "@/lib/server/stripePriceMap";
 import { buildCheckoutMetadata, MAX_CHECKOUT_LINES } from "@/lib/server/checkoutMetadata";
 import { getStripeClient } from "@/lib/server/stripeClient";
+import { createPendingOrder, attachStripeSessionId } from "@/lib/server/orders";
 
 // Stripe's Node SDK needs the Node runtime, not the Edge runtime.
 export const runtime = "nodejs";
@@ -101,7 +102,21 @@ export async function POST(request: NextRequest) {
     lineItems.push({ price: priceId, quantity: 1 });
   }
 
-  const metadataResult = buildCheckoutMetadata(validation.lines);
+  // Persist the order (Supabase) BEFORE creating a usable Stripe Checkout
+  // Session — we must never let a customer pay for an order we failed to
+  // record. `createPendingOrder` writes only server-validated/priced data
+  // (`validation`), never anything the client sent directly.
+  const createResult = await createPendingOrder(validation);
+  if (!createResult.ok) {
+    console.error("Refusing to create a Stripe Checkout Session — order persistence failed:", createResult.reason);
+    return NextResponse.json(
+      { error: "Unable to start checkout right now. Please try again." },
+      { status: 500 },
+    );
+  }
+  const { orderId } = createResult;
+
+  const metadataResult = buildCheckoutMetadata(validation.lines, orderId);
   if ("error" in metadataResult) {
     return NextResponse.json({ error: metadataResult.error }, { status: 400 });
   }
@@ -129,9 +144,17 @@ export async function POST(request: NextRequest) {
       throw new Error("Stripe did not return a Checkout Session URL.");
     }
 
+    // Best-effort — the order is already fully identifiable and payable via
+    // `metadata.order_id` on the session itself even if this write fails;
+    // see attachStripeSessionId's own comment for why that's safe.
+    await attachStripeSessionId(orderId, session.id);
+
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("Failed to create Stripe Checkout Session:", error);
+    // The Supabase order row (status `pending`, no `stripe_checkout_session_id`)
+    // is deliberately left in place here — it's real evidence a checkout was
+    // attempted, not a broken partial write, and is fully queryable as such.
+    console.error("Failed to create Stripe Checkout Session for order", orderId, ":", error);
     return NextResponse.json(
       { error: "Unable to start checkout right now. Please try again." },
       { status: 502 },
