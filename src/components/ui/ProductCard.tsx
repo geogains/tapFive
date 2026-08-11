@@ -39,14 +39,7 @@ export function ProductCard({ product, className }: { product: Product; classNam
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-6">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="font-display text-xl font-medium tracking-tight text-tf-black">
-            {product.name}
-          </h3>
-          <span className="whitespace-nowrap text-sm font-semibold text-tf-accent">
-            {product.priceLabel}
-          </span>
-        </div>
+        <h3 className="font-display text-xl font-medium tracking-tight text-tf-black">{product.name}</h3>
 
         <p className="text-sm leading-relaxed text-tf-neutral-600">{product.shortDescription}</p>
 
