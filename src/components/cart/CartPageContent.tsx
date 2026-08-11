@@ -1,13 +1,15 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
+import { useCartCheckout } from "@/components/cart/useCartCheckout";
 import { Button } from "@/components/ui/Button";
 import { CartLineItem } from "@/components/cart/CartLineItem";
 import { formatPrice } from "@/lib/utils";
 
 export function CartPageContent() {
   const { items, subtotal, promoDiscount, total, updateQuantity, removeItem } = useCart();
+  const { startCheckout, isSubmitting, error: checkoutError } = useCartCheckout();
 
   if (items.length === 0) {
     return (
@@ -64,13 +66,26 @@ export function CartPageContent() {
         </div>
 
         <Button
+          type="button"
           variant="primary"
           className="w-full bg-tf-black text-tf-white hover:bg-tf-neutral-800"
-          disabled
-          title="Checkout is coming soon"
+          onClick={startCheckout}
+          disabled={isSubmitting}
         >
-          Checkout (coming soon)
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              Redirecting to checkout…
+            </>
+          ) : (
+            "Checkout"
+          )}
         </Button>
+        {checkoutError ? (
+          <p role="alert" className="text-xs text-red-600">
+            {checkoutError}
+          </p>
+        ) : null}
 
         <Button href="/products" variant="secondary" className="w-full border-tf-neutral-300 text-tf-black hover:border-tf-black">
           Continue shopping
