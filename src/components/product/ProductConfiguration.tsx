@@ -6,20 +6,32 @@ import { InstagramConfigField } from "@/components/product/InstagramConfigField"
 import { CustomCardConfiguration } from "@/components/product/CustomCardConfiguration";
 
 export type ProductConfigurationValue = {
-  businessQuery: string;
-  manualDetails: string;
-  instagramHandle: string;
+  /** Selected Google Business Profile's Place ID (finder path only — empty for manual fallback or when nothing's selected yet). */
+  googlePlaceId: string;
+  /** Google Business Profile name (finder path) or customer-typed business name (manual fallback). Also reused, independently, by custom-branding below. */
   businessName: string;
+  /** Google's formatted address (finder path) or customer-typed address/postcode (manual fallback). */
+  businessAddress: string;
+  /** Manual fallback only: optional Google Maps share URL the customer may supply to help identify their listing. */
+  googleMapsUrl: string;
+  /** Manual fallback only: freeform "anything else that helps" notes. */
+  manualDetails: string;
+  /** `"true"` | `"false"` — string, not boolean, to match the flat string-only shape this value flows into (cart configuration, order_items.configuration). Re-derived server-side too; see orderConfiguration.ts. */
+  requiresManualGoogleVerification: string;
+  instagramHandle: string;
   destination: string;
   notes: string;
   logoFileName: string;
 };
 
 export const emptyProductConfiguration: ProductConfigurationValue = {
-  businessQuery: "",
-  manualDetails: "",
-  instagramHandle: "",
+  googlePlaceId: "",
   businessName: "",
+  businessAddress: "",
+  googleMapsUrl: "",
+  manualDetails: "",
+  requiresManualGoogleVerification: "",
+  instagramHandle: "",
   destination: "",
   notes: "",
   logoFileName: "",
@@ -43,7 +55,14 @@ export function toCartConfiguration(
 ): Record<string, string> | undefined {
   const relevant: Record<string, string> =
     type === "google-business"
-      ? { businessQuery: value.businessQuery, manualDetails: value.manualDetails }
+      ? {
+          googlePlaceId: value.googlePlaceId,
+          businessName: value.businessName,
+          businessAddress: value.businessAddress,
+          googleMapsUrl: value.googleMapsUrl,
+          manualDetails: value.manualDetails,
+          requiresManualGoogleVerification: value.requiresManualGoogleVerification,
+        }
       : type === "instagram"
         ? { instagramHandle: value.instagramHandle }
         : {
@@ -85,9 +104,14 @@ export function validateProductConfiguration(
   const errors: ConfigurationValidationErrors = {};
 
   if (type === "google-business") {
-    if (value.businessQuery.trim() === "" && value.manualDetails.trim() === "") {
-      errors.businessQuery =
-        "Search for your business, or add details manually, so we know which page to configure.";
+    // Finder path: a real selected business (Place ID + name). Manual
+    // fallback path: enough for Tap Five to identify the business later
+    // (name + address). Either satisfies the requirement.
+    const hasSelectedBusiness = value.googlePlaceId.trim() !== "" && value.businessName.trim() !== "";
+    const hasManualDetails = value.businessName.trim() !== "" && value.businessAddress.trim() !== "";
+    if (!hasSelectedBusiness && !hasManualDetails) {
+      errors.googlePlaceId =
+        "Search for your business and select it, or add your business details manually, so we know which page to configure.";
     }
   }
 
@@ -129,9 +153,16 @@ export function ProductConfiguration({
   if (configurationType === "google-business") {
     return (
       <BusinessLookup
-        value={{ businessQuery: value.businessQuery, manualDetails: value.manualDetails }}
+        value={{
+          googlePlaceId: value.googlePlaceId,
+          businessName: value.businessName,
+          businessAddress: value.businessAddress,
+          googleMapsUrl: value.googleMapsUrl,
+          manualDetails: value.manualDetails,
+          requiresManualGoogleVerification: value.requiresManualGoogleVerification,
+        }}
         onChange={(next) => onChange({ ...value, ...next })}
-        error={errors?.businessQuery}
+        error={errors?.googlePlaceId}
       />
     );
   }

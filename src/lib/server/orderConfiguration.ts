@@ -1,4 +1,5 @@
 import type { ConfigurationType } from "@/data/products";
+import { buildGoogleReviewUrl } from "@/lib/googleReview";
 
 /**
  * Server-side allow-list of configuration fields per product configuration
@@ -7,14 +8,38 @@ import type { ConfigurationType } from "@/data/products";
  * client submits. Keep in sync with `ProductConfigurationValue` in
  * `src/components/product/ProductConfiguration.tsx` (the client-side shape)
  * if that ever changes.
+ *
+ * Deliberately does NOT include `googleReviewUrl` — that key is never
+ * accepted from the client under any name; it's the one field this module
+ * computes itself (see below) from a validated `googlePlaceId`, so a
+ * client-submitted value for it is silently dropped by the allow-list
+ * before validation even runs, then unconditionally overwritten with the
+ * server-derived one on the success path.
  */
 export const ALLOWED_CONFIGURATION_FIELDS: Record<ConfigurationType, readonly string[]> = {
-  "google-business": ["businessQuery", "manualDetails"],
+  "google-business": [
+    "googlePlaceId",
+    "businessName",
+    "businessAddress",
+    "googleMapsUrl",
+    "manualDetails",
+    "requiresManualGoogleVerification",
+  ],
   instagram: ["instagramHandle"],
   "custom-branding": ["businessName", "destination", "notes", "logoFileName"],
 };
 
 const MAX_FIELD_LENGTH = 500;
+
+/**
+ * Light structural sanity check only — genuine Google Place IDs are an
+ * opaque, URL-safe identifier (letters, digits, `-`, `_`), typically well
+ * under 200 characters. Deliberately not a tight-format regex (e.g.
+ * requiring a "ChIJ" prefix): Place ID shapes vary and are not part of any
+ * public contract Tap Five should assume or enforce. This exists only to
+ * reject obviously-bogus/injected input, never to second-guess a real ID.
+ */
+const PLACE_ID_PATTERN = /^[A-Za-z0-9_-]{10,255}$/;
 
 export type ConfigurationValidationResult =
   | { valid: true; configuration: Record<string, string> }
@@ -65,8 +90,42 @@ export function validateOrderConfiguration(
     sanitized[key] = trimmed;
   }
 
-  if (type === "google-business" && !sanitized.businessQuery && !sanitized.manualDetails) {
-    return { valid: false, message: "Business information is required for a Google Review Card." };
+  if (type === "google-business") {
+    // Finder path: a real selected business (Place ID + name). Manual
+    // fallback path: enough for Tap Five to identify the business later
+    // (name + address) — never a fabricated Place ID.
+    const hasSelectedBusiness = Boolean(sanitized.googlePlaceId && sanitized.businessName);
+    const hasManualDetails = Boolean(sanitized.businessName && sanitized.businessAddress);
+
+    if (!hasSelectedBusiness && !hasManualDetails) {
+      return {
+        valid: false,
+        message:
+          "Business information is required for a Google Review Card — search for your business, or add details manually.",
+      };
+    }
+
+    if (sanitized.googlePlaceId && !PLACE_ID_PATTERN.test(sanitized.googlePlaceId)) {
+      return {
+        valid: false,
+        message: "That doesn't look like a valid Google business selection — please search again.",
+      };
+    }
+
+    if (hasSelectedBusiness) {
+      // Trusted finder path. `googleReviewUrl` is computed here, from the
+      // just-validated `googlePlaceId` — never accepted from the client
+      // (the allow-list above drops any client-submitted `googleReviewUrl`
+      // before this point is ever reached), so nothing the browser sends
+      // can override this. Bounded in length by `PLACE_ID_PATTERN` above,
+      // well under `MAX_FIELD_LENGTH`.
+      sanitized.googleReviewUrl = buildGoogleReviewUrl(sanitized.googlePlaceId);
+      sanitized.requiresManualGoogleVerification = "false";
+    } else {
+      // Manual fallback — re-derive the flag server-side rather than trust
+      // whatever the client sent for it; never set a review URL here.
+      sanitized.requiresManualGoogleVerification = "true";
+    }
   }
 
   if (type === "instagram" && !sanitized.instagramHandle) {
