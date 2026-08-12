@@ -52,13 +52,17 @@ export type GooglePlacesLibrary = {
   };
 };
 
+type GoogleMapsNamespace = {
+  importLibrary?: (library: string, ...args: unknown[]) => Promise<unknown>;
+  [key: string]: unknown;
+};
+
 declare global {
   interface Window {
     google?: {
-      maps?: {
-        importLibrary: (library: string) => Promise<unknown>;
-      };
+      maps?: GoogleMapsNamespace;
     };
+    [key: string]: unknown;
   }
 }
 
@@ -86,43 +90,111 @@ export function isGooglePlacesConfigured(): boolean {
   return getApiKey() !== null;
 }
 
-const SCRIPT_MARKER_ATTR = "data-tapfive-google-maps";
+/**
+ * ROOT CAUSE this fixes: the previous loader injected a plain
+ * `<script src="https://maps.googleapis.com/maps/api/js?key=...
+ * &libraries=places&loading=async&v=weekly">` tag, then — once the tag's
+ * own `onload` fired — assumed `window.google.maps.importLibrary` would
+ * exist. It doesn't reliably: a script loaded that way (`libraries=`
+ * baked directly into the URL) populates the classic `google.maps.places.*`
+ * namespace, but `importLibrary` is only guaranteed to exist when the page
+ * goes through Google's documented "Dynamic Library Import" bootstrap
+ * mechanism — which works the other way around. That mechanism defines
+ * `google.maps.importLibrary` as a small stub FIRST, synchronously, before
+ * any network request is even made; calling the stub is what triggers
+ * loading the real script (signalled via a `callback` query param, not the
+ * script tag's `onload`). Once the real script finishes executing, it
+ * overwrites the stub with its true implementation. `window.google.maps`
+ * existing is therefore never proof `importLibrary` is ready — only a
+ * resolved `importLibrary(...)` call is (see `loadPlacesLibrary` below).
+ *
+ * This function reimplements that same "stub now, real script overwrites
+ * it later" contract — the mechanism Google's own bootstrap loader snippet
+ * uses — in typed, readable TypeScript rather than pasting Google's
+ * published minified inline snippet verbatim. Idempotent: if
+ * `importLibrary` already exists (stub or real), it's a no-op, so calling
+ * this again on client-side navigation or a remount never re-installs the
+ * stub or injects a second script tag.
+ */
+function ensureGoogleMapsBootstrap(apiKey: string): void {
+  const google = (window.google ??= {});
+  const maps = (google.maps ??= {});
 
-function loadScript(apiKey: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (window.google?.maps?.importLibrary) {
-      resolve();
-      return;
-    }
+  if (typeof maps.importLibrary === "function") return; // Stub or real implementation already installed — nothing to do.
 
-    const existing = document.querySelector<HTMLScriptElement>(`script[${SCRIPT_MARKER_ATTR}]`);
-    if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("Failed to load Google Maps script.")));
-      return;
-    }
+  const requestedLibraries = new Set<string>();
+  let scriptLoadPromise: Promise<void> | null = null;
 
-    const script = document.createElement("script");
-    script.setAttribute(SCRIPT_MARKER_ATTR, "true");
-    // `loading=async` + `importLibrary` is Google's current documented
-    // loading pattern (replaces the old `libraries=places` synchronous
-    // load). The key is the intentionally-public, referrer-restricted
-    // browser key — never a secret.
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&loading=async&v=weekly`;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Failed to load Google Maps script."));
-    document.head.appendChild(script);
-  });
+  function loadScriptOnce(): Promise<void> {
+    if (scriptLoadPromise) return scriptLoadPromise;
+
+    scriptLoadPromise = new Promise<void>((resolve, reject) => {
+      // A plain top-level global callback name — the long-established,
+      // unambiguous form of Google's `callback` contract (the same shape
+      // as the classic `callback=initMap` pattern), rather than a nested
+      // dotted path, to keep this reliably interoperable with the real
+      // script Google serves.
+      const callbackName = "__tapfiveGoogleMapsReady__";
+      window[callbackName] = () => {
+        delete window[callbackName];
+        resolve();
+      };
+
+      const params = new URLSearchParams({
+        key: apiKey,
+        v: "weekly",
+        libraries: [...requestedLibraries].join(","),
+        callback: callbackName,
+        loading: "async",
+      });
+
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+      script.async = true;
+      script.onerror = () => {
+        scriptLoadPromise = null;
+        delete window[callbackName];
+        reject(new Error("Google Maps script failed to load."));
+      };
+      const nonce = document.querySelector("script[nonce]")?.getAttribute("nonce");
+      if (nonce) script.nonce = nonce;
+
+      document.head.appendChild(script);
+    });
+
+    return scriptLoadPromise;
+  }
+
+  // The stub: records which library was asked for, ensures the (single,
+  // shared) script request is in flight, and — once it resolves — calls
+  // whatever `importLibrary` is installed by then. By that point Google's
+  // real script has overwritten this stub with its true implementation,
+  // so this delegates to the real one rather than recursing into itself.
+  maps.importLibrary = (libraryName: string, ...rest: unknown[]) => {
+    requestedLibraries.add(libraryName);
+    return loadScriptOnce().then(() => {
+      const real = maps.importLibrary;
+      if (typeof real !== "function") {
+        throw new Error("Google Maps script loaded but did not define importLibrary.");
+      }
+      return real(libraryName, ...rest);
+    });
+  };
 }
 
 let placesLibraryPromise: Promise<GooglePlacesLibrary> | null = null;
 
 /**
  * Loads (once — cached at module scope, so remounting the search UI never
- * injects the script twice) and returns the Places library. Rejects
- * cleanly — never throws synchronously — so callers can show a graceful
- * "search unavailable" state instead of crashing the product page.
+ * re-triggers the bootstrap or injects a second script tag) and returns
+ * the Places library. Rejects cleanly — never throws synchronously — so
+ * callers can show a graceful "search unavailable" state instead of
+ * crashing the product page.
+ *
+ * Readiness is proven by successfully resolving `importLibrary("places")`
+ * itself — never merely by `window.google.maps` existing (see the long
+ * comment on `ensureGoogleMapsBootstrap` above for why that distinction is
+ * exactly what broke this in production).
  */
 export function loadPlacesLibrary(): Promise<GooglePlacesLibrary> {
   if (placesLibraryPromise) return placesLibraryPromise;
@@ -132,8 +204,10 @@ export function loadPlacesLibrary(): Promise<GooglePlacesLibrary> {
     return Promise.reject(new Error("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured."));
   }
 
-  placesLibraryPromise = loadScript(apiKey)
-    .then(() => window.google!.maps!.importLibrary("places"))
+  ensureGoogleMapsBootstrap(apiKey);
+
+  placesLibraryPromise = window
+    .google!.maps!.importLibrary!("places")
     .then((lib) => lib as GooglePlacesLibrary)
     .catch((error: unknown) => {
       // Don't permanently cache a failed load — a transient network issue
