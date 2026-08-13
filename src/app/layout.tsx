@@ -21,7 +21,7 @@ const manrope = Manrope({
   display: "swap",
 });
 
-const siteUrl = "https://www.tapfive.co.uk"; // placeholder — update once the domain is live
+const siteUrl = "https://tapfive.co.uk";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -46,9 +46,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/logo-black.png", // placeholder OG image — replace with a dedicated 1200x630 asset
-        width: 1200,
-        height: 630,
+        url: "/images/preview.png",
+        width: 1672,
+        height: 941,
         alt: "Tap Five",
       },
     ],
@@ -57,6 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Tap Five | NFC Google Review Cards for Local Businesses",
     description: company.description,
+    images: ["/images/preview.png"],
   },
   icons: {
     icon: "/images/tapfive-favicon.png",
