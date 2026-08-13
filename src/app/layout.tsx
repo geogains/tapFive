@@ -58,7 +58,9 @@ export const metadata: Metadata = {
     description: company.description,
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/images/tapfive-favicon.png",
+    shortcut: "/images/tapfive-favicon.png",
+    apple: "/images/tapfive-favicon.png",
   },
 };
 

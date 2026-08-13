@@ -13,7 +13,7 @@ export const company = {
   tagline: "NFC Google Review cards for local businesses",
   description:
     "Tap Five designs premium NFC review cards that turn a single tap into a genuine Google review — no app, no typing a link, no friction.",
-  email: "support@tapfive.co.uk",
+  email: "info@tapfive.co.uk",
   foundedYear: 2025,
 };
 
