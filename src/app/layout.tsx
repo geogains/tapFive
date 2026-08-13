@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MotionProvider } from "@/components/providers/MotionProvider";
@@ -90,6 +91,7 @@ export default function RootLayout({
             <CartDrawer />
           </CartProvider>
         </MotionProvider>
+        <Analytics />
       </body>
     </html>
   );
