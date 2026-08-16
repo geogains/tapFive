@@ -6,6 +6,12 @@ import { Reveal } from "@/components/ui/Reveal";
 import { products } from "@/data/products";
 import { productsSection } from "@/data/site-content";
 
+// The Multi-Link Card is deliberately kept off the homepage section — it's
+// only shown on the dedicated /products listing page and its own detail
+// page — while still living in the shared `products` catalogue so cart,
+// pricing and the /products/[slug] route all work normally for it.
+const homepageProducts = products.filter((product) => product.slug !== "multi-link-card");
+
 export function ProductsSection() {
   return (
     <section id="products" className="scroll-mt-24 bg-tf-neutral-100 tf-section">
@@ -22,7 +28,7 @@ export function ProductsSection() {
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product, index) => (
+          {homepageProducts.map((product, index) => (
             <Reveal key={product.slug} delay={index * 0.1}>
               <ProductCard product={product} />
             </Reveal>

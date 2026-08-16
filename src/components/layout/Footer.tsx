@@ -45,6 +45,14 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-white">Contact</h3>
             <ul className="flex flex-col gap-2 text-sm text-tf-neutral-400">
               <li>{company.email}</li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="tf-focus-ring text-sm text-tf-neutral-400 transition-colors hover:text-white"
+                >
+                  Contact Us
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

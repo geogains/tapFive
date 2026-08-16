@@ -1,5 +1,7 @@
 import type { ConfigurationType } from "@/data/products";
 import { buildGoogleReviewUrl } from "@/lib/googleReview";
+import { MIN_MULTI_LINK_PLATFORMS, parseMultiLinkPlatforms } from "@/lib/multiLink";
+import { isValidLogoReference } from "@/lib/multiLinkLogo";
 
 /**
  * Server-side allow-list of configuration fields per product configuration
@@ -27,6 +29,26 @@ export const ALLOWED_CONFIGURATION_FIELDS: Record<ConfigurationType, readonly st
   ],
   instagram: ["instagramHandle"],
   "custom-branding": ["businessName", "destination", "notes", "logoFileName"],
+  "multi-link": [
+    "multiLinkPlatforms",
+    "googlePlaceId",
+    "businessName",
+    "businessAddress",
+    "googleMapsUrl",
+    "manualDetails",
+    "requiresManualGoogleVerification",
+    "instagramHandle",
+    "facebookUrl",
+    "tiktokHandle",
+    "tripadvisorUrl",
+    "trustpilotUrl",
+    "primaryColor",
+    "secondaryColor",
+    "multiLinkLogoBucket",
+    "multiLinkLogoPath",
+    "multiLinkLogoOriginalName",
+    "multiLinkLogoMimeType",
+  ],
 };
 
 const MAX_FIELD_LENGTH = 500;
@@ -137,6 +159,87 @@ export function validateOrderConfiguration(
       valid: false,
       message: "Business name and destination are required for a Custom Branded Card.",
     };
+  }
+
+  if (type === "multi-link") {
+    const selectedPlatforms = parseMultiLinkPlatforms(sanitized.multiLinkPlatforms ?? "");
+
+    if (selectedPlatforms.length < MIN_MULTI_LINK_PLATFORMS) {
+      return {
+        valid: false,
+        message: `Select at least ${MIN_MULTI_LINK_PLATFORMS} platforms for a Multi-Link Card.`,
+      };
+    }
+
+    // Never trusts the client's shape alone — confirms the bucket is
+    // exactly the known constant (never client-chosen), the path matches
+    // the strict server-generated-path pattern (no traversal, no arbitrary
+    // strings), and the mime type is one of the allowed set and actually
+    // agrees with the path's extension. This does NOT confirm the object
+    // still exists in Storage (no round-trip to Supabase from here) — see
+    // multiLinkLogo.ts for why that's a deliberate, documented tradeoff.
+    if (
+      !isValidLogoReference({
+        bucket: sanitized.multiLinkLogoBucket,
+        path: sanitized.multiLinkLogoPath,
+        mimeType: sanitized.multiLinkLogoMimeType,
+      })
+    ) {
+      return { valid: false, message: "A valid business logo upload is required for a Multi-Link Card." };
+    }
+
+    if (selectedPlatforms.includes("google")) {
+      const hasSelectedBusiness = Boolean(sanitized.googlePlaceId && sanitized.businessName);
+      const hasManualDetails = Boolean(sanitized.businessName && sanitized.businessAddress);
+
+      if (!hasSelectedBusiness && !hasManualDetails) {
+        return {
+          valid: false,
+          message:
+            "Google business information is required for the platforms you selected — search for your business, or add details manually.",
+        };
+      }
+
+      if (sanitized.googlePlaceId && !PLACE_ID_PATTERN.test(sanitized.googlePlaceId)) {
+        return {
+          valid: false,
+          message: "That doesn't look like a valid Google business selection — please search again.",
+        };
+      }
+
+      if (hasSelectedBusiness) {
+        // Same derivation as the "google-business" branch above — never
+        // trusted from the client (dropped by the allow-list before this
+        // point), always recomputed from the just-validated Place ID.
+        sanitized.googleReviewUrl = buildGoogleReviewUrl(sanitized.googlePlaceId);
+        sanitized.requiresManualGoogleVerification = "false";
+      } else {
+        sanitized.requiresManualGoogleVerification = "true";
+      }
+    }
+
+    if (selectedPlatforms.includes("instagram") && !sanitized.instagramHandle) {
+      return {
+        valid: false,
+        message: "An Instagram link is required for the platforms you selected.",
+      };
+    }
+
+    if (selectedPlatforms.includes("facebook") && !sanitized.facebookUrl) {
+      return { valid: false, message: "A Facebook link is required for the platforms you selected." };
+    }
+
+    if (selectedPlatforms.includes("tiktok") && !sanitized.tiktokHandle) {
+      return { valid: false, message: "A TikTok link is required for the platforms you selected." };
+    }
+
+    if (selectedPlatforms.includes("tripadvisor") && !sanitized.tripadvisorUrl) {
+      return { valid: false, message: "A Tripadvisor link is required for the platforms you selected." };
+    }
+
+    if (selectedPlatforms.includes("trustpilot") && !sanitized.trustpilotUrl) {
+      return { valid: false, message: "A Trustpilot link is required for the platforms you selected." };
+    }
   }
 
   return { valid: true, configuration: sanitized };

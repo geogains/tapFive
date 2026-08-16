@@ -22,6 +22,7 @@ export const nav = [
   { label: "Products", href: "/#products" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Why Tap Five", href: "/#why-tap-five" },
+  { label: "Testimonials", href: "/#testimonials" },
   { label: "FAQ", href: "/#faq" },
   { label: "Contact", href: "/contact" },
 ];

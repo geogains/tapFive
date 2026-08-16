@@ -92,10 +92,12 @@ create table if not exists public.order_items (
   -- details, custom branding info, etc.), re-validated server-side via
   -- src/lib/server/orderConfiguration.ts before being written here.
   --
-  -- Future file uploads (e.g. a Custom Branded Card logo/artwork) must be
-  -- stored in Supabase Storage (or another blob store) and referenced here
-  -- as a URL string, e.g. configuration->>'logoUrl' — never store file
-  -- bytes in this jsonb column.
+  -- File uploads (e.g. the Multi-Link Card's business logo — see
+  -- 20260816170000_create_multilink_logos_bucket.sql and
+  -- src/lib/multiLinkLogo.ts) are stored in Supabase Storage and referenced
+  -- here as a {bucket, path, originalName, mimeType} object under flat
+  -- `multiLinkLogo*` keys — never a signed/expiring URL as the permanent
+  -- reference, and never file bytes in this jsonb column.
   configuration jsonb not null default '{}'::jsonb,
 
   created_at timestamptz not null default now()

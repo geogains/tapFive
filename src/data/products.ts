@@ -10,7 +10,7 @@ import type { Faq } from "@/data/faqs";
  */
 
 /** Which purchase-configuration UI a product's detail page should render. */
-export type ConfigurationType = "google-business" | "instagram" | "custom-branding";
+export type ConfigurationType = "google-business" | "instagram" | "custom-branding" | "multi-link";
 
 export type Product = {
   /** Internal identity used for cart line matching and the /products#slug anchor on the listing page. Not the detail-page URL — see `routeSlug`. */
@@ -47,6 +47,20 @@ export type Product = {
   /** Product-specific FAQ entries shown on the detail page (separate from the site-wide FAQ in `faqs.ts`). */
   faqs: Faq[];
 };
+
+/**
+ * Multi-Link Card pricing tiers are real, confirmed Tap Five pricing (not
+ * the `buildPricingTiers` TODO-placeholder discount curve the other three
+ * products still use), so they're written out explicitly here rather than
+ * derived.
+ */
+const MULTI_LINK_PRICING_TIERS: PricingTier[] = [
+  { quantity: 1, totalPrice: 5500, pricePerCard: 5500, savings: 0 },
+  { quantity: 2, totalPrice: 10000, pricePerCard: 5000, savings: 1000 },
+  { quantity: 3, totalPrice: 14500, pricePerCard: 4833, savings: 2000 },
+  { quantity: 4, totalPrice: 18700, pricePerCard: 4675, savings: 3300 },
+  { quantity: 5, totalPrice: 22500, pricePerCard: 4500, savings: 5000 },
+];
 
 export const products: Product[] = [
   {
@@ -229,6 +243,78 @@ export const products: Product[] = [
         question: "How do I send my logo?",
         answer:
           "Use the logo upload area on this page when you order. If you'd rather send it another way, add a note in the optional notes field and our team will follow up.",
+      },
+    ],
+  },
+  {
+    slug: "multi-link-card",
+    routeSlug: "multi-link-card",
+    name: "Multi-Link Card",
+    shortDescription:
+      "One tap or scan opens a single link page sending customers to all your platforms — Google, Instagram, Facebook, TikTok, Tripadvisor and Trustpilot.",
+    description:
+      "The Multi-Link Card puts every one of your online profiles behind a single tap or scan. Choose at least two of six platforms — Google, Instagram, Facebook, TikTok, Tripadvisor and Trustpilot — and customers land on a simple link page where they pick where they want to go. Add your logo and, optionally, your brand colours, and we'll configure the card before it's dispatched.",
+    benefits: [
+      "One card, multiple destinations — pick any 2 or more platforms",
+      "Supports Google, Instagram, Facebook, TikTok, Tripadvisor and Trustpilot",
+      "Your business logo on the link page",
+      "Optional custom primary/secondary colours",
+      "NFC + QR code",
+      "Works with compatible iPhone and Android devices",
+      "No app required",
+      "One-time payment — no subscription",
+    ],
+    image: "/images/multilink-card.png",
+    price: 5500,
+    priceLabel: "£55",
+    features: [
+      "Choose 2 or more platforms",
+      "Google, Instagram, Facebook, TikTok, Tripadvisor, Trustpilot",
+      "Your logo on the link page",
+      "NFC + QR code",
+    ],
+    href: "/products/multi-link-card",
+    configurationType: "multi-link",
+    pricingTiers: MULTI_LINK_PRICING_TIERS,
+    howItWorks: [
+      "Order your card",
+      "Select 2 or more platforms and add your details",
+      "Upload your logo and choose optional colours",
+      "We configure your link page and dispatch your card",
+    ],
+    faqs: [
+      {
+        question: "How many platforms can I choose?",
+        answer:
+          "Any 2 or more of the 6 supported platforms — Google, Instagram, Facebook, TikTok, Tripadvisor and Trustpilot. You'll be asked for the relevant details for each one you select.",
+      },
+      {
+        question: "Does the card require an app?",
+        answer:
+          "No. Tapping or scanning the card opens your link page directly in the customer's phone browser, and from there they choose where to go.",
+      },
+      {
+        question: "Does it work with iPhone and Android?",
+        answer:
+          "Yes, with compatible NFC-enabled iPhone and Android devices. The printed QR code works as a fallback where NFC isn't available.",
+      },
+      {
+        question: "Is the logo upload required?",
+        answer:
+          "Yes. Your business logo appears on the link page customers see, so it's required for every Multi-Link Card order.",
+      },
+      {
+        question: "Do I have to set custom colours?",
+        answer: "No, colours are optional. If you don't set them, your link page uses our default styling.",
+      },
+      {
+        question: "Is there a monthly subscription?",
+        answer: "No. This is a one-time payment for the physical card — there's no recurring fee.",
+      },
+      {
+        question: "Does the card arrive configured?",
+        answer:
+          "Yes. We configure your link page with the platforms and details you provide before dispatch, so it's ready to use as soon as it arrives.",
       },
     ],
   },

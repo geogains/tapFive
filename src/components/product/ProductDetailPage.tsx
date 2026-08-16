@@ -36,6 +36,10 @@ export function ProductDetailPage({ product }: { product: Product }) {
   );
   const [configErrors, setConfigErrors] = useState<ConfigurationValidationErrors>({});
   const [added, setAdded] = useState(false);
+  // Multi-link only — true while its logo upload is in flight (initial or a
+  // replace); Add to Cart is disabled for that window so a customer can
+  // never submit with a stale/no-longer-current logo reference.
+  const [isMultiLinkLogoUploading, setIsMultiLinkLogoUploading] = useState(false);
 
   const selectedTier =
     product.pricingTiers.find((tier) => tier.quantity === selectedQuantity) ??
@@ -66,10 +70,12 @@ export function ProductDetailPage({ product }: { product: Product }) {
   const handleAddToCart = () => {
     // Light formatting (e.g. adding a leading "@") before validating, so the
     // check and the stored value agree with what the customer will see.
-    const normalizedConfiguration: ProductConfigurationValue =
-      product.configurationType === "instagram"
-        ? { ...configuration, instagramHandle: normalizeInstagramHandle(configuration.instagramHandle) }
-        : configuration;
+    // Always applied (not just for the "instagram" type) since multi-link
+    // also has an Instagram field, and it's a no-op on an empty/unused one.
+    const normalizedConfiguration: ProductConfigurationValue = {
+      ...configuration,
+      instagramHandle: normalizeInstagramHandle(configuration.instagramHandle),
+    };
 
     const validation = validateProductConfiguration(product.configurationType, normalizedConfiguration);
     if (!validation.valid) {
@@ -163,12 +169,14 @@ export function ProductDetailPage({ product }: { product: Product }) {
                 value={configuration}
                 onChange={handleConfigurationChange}
                 errors={configErrors}
+                onMultiLinkUploadingChange={setIsMultiLinkLogoUploading}
               />
 
               <Button
                 type="button"
                 size="lg"
                 onClick={handleAddToCart}
+                disabled={isMultiLinkLogoUploading}
                 className="w-full bg-tf-black text-tf-white hover:bg-tf-neutral-800"
               >
                 {added ? (
@@ -176,6 +184,8 @@ export function ProductDetailPage({ product }: { product: Product }) {
                     <Check className="h-4 w-4" aria-hidden="true" />
                     Added to cart
                   </>
+                ) : isMultiLinkLogoUploading ? (
+                  "Uploading logo…"
                 ) : (
                   `Add to Cart — ${formatPrice(selectedTier.totalPrice)}`
                 )}

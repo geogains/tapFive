@@ -36,6 +36,13 @@ export type PricingTier = {
   savings: number;
   /** Optional merchandising label for this tier, e.g. "MOST POPULAR" or "BEST VALUE". */
   tag?: string;
+  /**
+   * Stripe Price ID for this exact quantity, once checkout is connected.
+   * Deliberately absent (not a placeholder string) until a real ID is
+   * provided — nothing reads this yet, but the shape exists so each tier can
+   * carry its own ID without further restructuring when checkout is wired up.
+   */
+  stripePriceId?: string;
 };
 
 /**

@@ -1,10 +1,9 @@
 /**
  * Partner logos shown in the "Trusted by" marquee on the homepage.
  *
- * PROTOTYPE CONTENT: the six logos below are real, trademarked brand
- * assets used for local design/layout review only — Tap Five has no
- * confirmed partnership with these businesses. Swap this list for
- * genuine, authorised partner logos before the site is deployed publicly.
+ * These 9 fictional brands mirror the businesses quoted in the
+ * testimonials section (`src/data/site-content.ts`), so the two sections
+ * feel consistent rather than referencing different sets of businesses.
  *
  * To add or replace an entry: set `name` to the company name and
  * `logoSrc` to an image placed in `public/images/` (SVG or PNG with a
@@ -20,10 +19,12 @@ export type Partner = {
 };
 
 export const partners: Partner[] = [
-  { name: "Costa Coffee", logoSrc: "/images/costa.png" },
-  { name: "Nando's", logoSrc: "/images/nandos.png" },
-  { name: "PureGym", logoSrc: "/images/pure-gym.png" },
-  { name: "Marriott", logoSrc: "/images/marriot.png" },
-  { name: "Premier Inn", logoSrc: "/images/premier-inn.png" },
-  { name: "Specsavers", logoSrc: "/images/specsavers.png" },
+  { name: "Oakline Motors", logoSrc: "/images/tea&bun.png" },
+  { name: "North & Bean Café", logoSrc: "/images/north2.png" },
+  { name: "The Sweet Pantry", logoSrc: "/images/redcrow1.png" },
+  { name: "Ember Kitchen", logoSrc: "/images/ember2.png" },
+  { name: "Aurelia Jewellers", logoSrc: "/images/aureila2.png" },
+  { name: "The Dessert Room", logoSrc: "/images/cakebox.png" },
+  { name: "Saffron Table", logoSrc: "/images/saffron2.png" },
+  { name: "Junction Coffee Co.", logoSrc: "/images/junction2.png" },
 ];

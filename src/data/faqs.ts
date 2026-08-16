@@ -35,9 +35,9 @@ export const faqs: Faq[] = [
       "Yes. Our Custom Branded Card option can be produced using your logo and brand colours alongside your Google review link.",
   },
   {
-    question: "How do I find my Google review link?",
+    question: "How do I connect my business to the card?",
     answer:
-      "You can generate this from your Google Business Profile. If you're not sure how, our team can help you locate the correct link when you place an order.",
+      "Use our Business Finder when ordering to search for and select your Google Business Profile. We’ll use it to configure your card so customers can go straight to your Google review page with a tap or scan.",
   },
   {
     question: "Do you configure the card for me?",
@@ -47,6 +47,6 @@ export const faqs: Faq[] = [
   {
     question: "What happens after I place an order?",
     answer:
-      "We'll confirm your review link with you, produce your card, and dispatch it to your business address. Full ordering will be available soon.",
+      "Once your order is placed, we’ll configure your card using the business you selected, produce it, and dispatch it to your delivery address. Your card will arrive ready to use.",
   },
 ];

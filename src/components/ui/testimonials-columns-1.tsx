@@ -2,9 +2,12 @@
 
 import React from "react";
 import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
 
 export const TestimonialsColumn = (props: {
   className?: string;
+  /** Card max-width utility class(es), e.g. to widen cards on wider layouts. Defaults to the original `max-w-xs`. */
+  cardClassName?: string;
   testimonials: {
     text: string;
     name: string;
@@ -32,7 +35,10 @@ export const TestimonialsColumn = (props: {
               {props.testimonials.map(
                 ({ text, name, role }, i) => (
                   <div
-                    className="p-10 rounded-3xl border border-tf-neutral-200 shadow-lg shadow-tf-accent/10 max-w-xs w-full bg-tf-white"
+                    className={cn(
+                      "p-10 rounded-3xl border border-tf-neutral-200 shadow-lg shadow-tf-accent/10 w-full bg-tf-white",
+                      props.cardClassName ?? "max-w-xs",
+                    )}
                     key={i}
                   >
                     <div className="text-sm leading-relaxed text-tf-neutral-700">{text}</div>

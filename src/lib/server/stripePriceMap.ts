@@ -49,6 +49,14 @@ export const STRIPE_PRICE_MAP: Record<string, Record<number, StripePriceMapping>
     4: { priceId: "price_1U3EmwPDQ6npU2uNrpCb31NF", expectedPence: 17850 },
     5: { priceId: "price_1U3EnEPDQ6npU2uN3bgkZF6S", expectedPence: 21525 },
   },
+  // Multi-Link Card — £41.25 / £75.00 / £108.75 / £140.25 / £168.75
+  "multi-link-card": {
+    1: { priceId: "price_1U573uPDQ6npU2uNtMD6PcYW", expectedPence: 4125 },
+    2: { priceId: "price_1U575QPDQ6npU2uNgSbbqjai", expectedPence: 7500 },
+    3: { priceId: "price_1U5760PDQ6npU2uNIazN9npK", expectedPence: 10875 },
+    4: { priceId: "price_1U576IPDQ6npU2uNEKByqiiY", expectedPence: 14025 },
+    5: { priceId: "price_1U576ePDQ6npU2uNJJEYWMfM", expectedPence: 16875 },
+  },
 };
 
 /** Only these quantities are ever valid for checkout — mirrors the 5 tiers `buildPricingTiers` defines. */
